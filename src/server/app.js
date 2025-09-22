@@ -24,8 +24,12 @@ app.use(cors({ origin: `${FRONTEND_URL}` })); // Restrict requests to frontend
 
 //  -------- Routers -------
 import fileRouter from "./routes/fileStorage.js";
+import roomRouter from "./routes/roomRouter.js";
+import userRouter from "./routes/userRouter.js";
 
-app.use("/api/v1", fileRouter);
+app.use("/api/", fileRouter);
+app.use("/api/room", roomRouter);
+app.use("/api/user", userRouter);
 
 //  ----- Server Healthcheck -----
 app.get('/healthcheck', (req, res) => {
