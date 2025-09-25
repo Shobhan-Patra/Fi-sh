@@ -15,8 +15,7 @@ function generateR2Key(fileName) {
 }
 
 const getUploadUrl = asyncHandler(async (req, res) => {
-  const { roomId, userId, filename, fileSize, contentType } = req.body;
-  const fileId = uuidv4();
+  const { filename, contentType } = req.body;
   const key = generateR2Key(filename);
 
   const command = new PutObjectCommand({
@@ -26,27 +25,6 @@ const getUploadUrl = asyncHandler(async (req, res) => {
   });
 
   const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 60 * 4 });
-
-  const insertFileData = db.prepare(
-    "INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type) VALUES (?, ?, ?, ?, ?, ?)"
-  );
-
-  try {
-    const result = insertFileData.run(
-      fileId,
-      roomId,
-      userId,
-      filename,
-      fileSize,
-      contentType
-    );
-    if (result.changes === 0) {
-      throw new Error("No changes made");
-    }
-  } catch (error) {
-    console.log("Error while saving file metadata: ", error);
-    throw new ApiError(400, "Error while saving file metadata");
-  }
 
   res
     .status(200)
@@ -68,21 +46,9 @@ const getDownloadUrl = asyncHandler(async (req, res) => {
     ResponseContentDisposition: `attachment`,
   });
 
-  const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 50 * 4 });
-
-  const updateFileStorageUrl = db.prepare(
-    "UPDATE users SET storage_url = ? WHERE id = ?"
-  );
-
-  try {
-    const result = updateFileStorageUrl.run(downloadUrl, fileId);
-    if (result.changes === 0) {
-      throw new Error("No changes made");
-    }
-  } catch (error) {
-    console.log("Error while saving file metadata: ", error);
-    throw new ApiError(400, "Error while saving file metadata");
-  }
+  const downloadUrl = await getSignedUrl(s3, command, {
+    expiresIn: 60 * 50 * 4,
+  });
 
   res
     .status(200)
@@ -95,4 +61,36 @@ const getDownloadUrl = asyncHandler(async (req, res) => {
     );
 });
 
-export { getUploadUrl, getDownloadUrl };
+const updateFilesTable = asyncHandler(async (req, res) => {
+  const { roomId, userId, filename, fileSize, contentType, downloadUrl } =
+    req.body;
+  const fileId = uuidv4();
+
+  const insertFileData = db.prepare(
+    "INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  );
+
+  try {
+    const result = insertFileData.run(
+      fileId,
+      roomId,
+      userId,
+      filename,
+      fileSize,
+      contentType,
+      downloadUrl
+    );
+    if (result.changes === 0) {
+      throw new Error("No changes made");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Files table updated successfully"));
+  } catch (error) {
+    console.log("Error while saving file metadata: ", error);
+    throw new ApiError(400, "Error while saving file metadata");
+  }
+});
+
+export { getUploadUrl, getDownloadUrl, updateFilesTable };

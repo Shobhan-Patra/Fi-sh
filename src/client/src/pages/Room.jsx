@@ -17,22 +17,31 @@ export default function Room() {
 
   async function uploadFile(file) {
     // Get upload URL
-    const res = await fetch("http://localhost:8000/api/v1/upload", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        filename: file.name,
-        contentType: file.type,
-      }),
-    });
+    // const res = await fetch("/api/v1/file/upload", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     filename: file.name,
+    //     contentType: file.type,
+    //   }),
+    // });
+    // const data = await res.json();
 
-    const data = await res.json();
+    const fileData = {
+      filename: file.name,
+      contentType: file.type,
+    };
 
-    console.log("Data: ", data.data);
-    const signedUploadUrl = data.data.signedUploadUrl;
-    const key = data.data.key;
+    const { data } = await axios.post("/api/v1/file/upload", fileData);
+    console.log(data);
+
+    // const data = response;
+
+    console.log("Data: ", data?.data);
+    const signedUploadUrl = data.signedUploadUrl;
+    const key = data.key;
 
     try {
       if (!signedUploadUrl) throw new Error("Error fetching upload Url");
@@ -58,6 +67,19 @@ export default function Room() {
 
       // Get download Url
       const downloadUrl = await getDownloadUrl(key);
+
+      // TODO:
+      //   // update files table
+      //   const res = await fetch("http://localhost:8000/api/v1/file/update", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     filename: file.name,
+      //     contentType: file.type,
+      //   }),
+      // });
 
       //Update Shared files list
       updateSharedFiles(file.name, key, file.size, downloadUrl);
@@ -97,25 +119,29 @@ export default function Room() {
 
   async function getDownloadUrl(key) {
     try {
-      const res = await fetch(
-        `http://localhost:8000/api/v1/download?key=${encodeURIComponent(key)}`
+      // const res = await fetch(
+      //   `/api/v1/download?key=${encodeURIComponent(key)}`
+      // );
+      // const { data } = await res.json();
+
+      const { data } = await axios.get(
+        `/api/v1/download?key=${encodeURIComponent(key)}`
       );
-
-      if (!res.ok) {
-        const text = await res.text(); // read error as text (might be HTML/XML)
-        throw new Error(`Failed to get download URL: ${res.status} - ${text}`);
-      }
-
-      const { data } = await res.json();
 
       if (!data?.signedDownloadUrl) {
         throw new Error("Backend did not return a signed download URL");
       }
 
       console.log("Download URL Result:", data.signedDownloadUrl);
+
       return data.signedDownloadUrl;
+
+      // if (!res.ok) {
+      //   const text = await res.text(); // read error as text (might be HTML/XML)
+      //   throw new Error(`Failed to get download URL: ${res.status} - ${text}`);
+      // }
     } catch (err) {
-      console.error("Error in getDownloadUrl:", err.message);
+      console.error("Error in fetching download URL:", err);
       throw err;
     }
   }

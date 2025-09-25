@@ -27,7 +27,7 @@ import fileRouter from "./routes/fileStorage.js";
 import roomRouter from "./routes/roomRouter.js";
 import userRouter from "./routes/userRouter.js";
 
-app.use("/api/", fileRouter);
+app.use("/api/file", fileRouter);
 app.use("/api/room", roomRouter);
 app.use("/api/user", userRouter);
 

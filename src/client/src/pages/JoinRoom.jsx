@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom"
 
 export default function JoinRoom() {
+
+  const handleJoinClick = async () => {
+    
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-6 py-20 text-center text-gray-100">
       <h2 className="text-4xl font-bold text-indigo-400">Join a Room</h2>
@@ -15,7 +20,8 @@ export default function JoinRoom() {
           className="p-3 bg-gray-800 border border-gray-700 rounded-lg w-64 text-center text-gray-100 placeholder-gray-400 focus:outline-none focus:ring focus:ring-indigo-500"
         />
         <Link to="/room" className="flex items-center space-x-2">
-          <button className="px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition">
+          <button className="px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition"
+          onClick={() => handleJoinClick}>
             Join
           </button>
         </Link>
