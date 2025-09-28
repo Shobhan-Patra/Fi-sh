@@ -1,0 +1,20 @@
+import axios from "axios";
+
+export default async function getDownloadUrl(key) {
+  try {
+    const { data } = await axios.get(
+      `/api/file/download?key=${encodeURIComponent(key)}`
+    );
+
+    if (!data?.data.signedDownloadUrl) {
+      throw new Error("Backend did not return a signed download URL");
+    }
+
+    console.log("Download URL Result:", data.data.signedDownloadUrl);
+
+    return data.data.signedDownloadUrl;
+  } catch (err) {
+    console.error("Error in fetching download URL:", err);
+    throw err;
+  }
+}

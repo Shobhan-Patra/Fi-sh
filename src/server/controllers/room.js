@@ -6,14 +6,14 @@ import db from "../db/db.js";
 
 const createRoom = asyncHandler(async (req, res) => {
   const roomId = generateRoomId();
-  const { username } = req.body;
+  const { createdBy } = req.body;
 
   const insertRoom = db.prepare(
     "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))"
   );
 
   try {
-    const result = insertRoom.run(roomId, username);
+    const result = insertRoom.run(roomId, createdBy);
 
     if (result.changes < 1) {
       throw new ApiError(400, "Couldn't insert into DB");
@@ -45,7 +45,8 @@ const getAllSharedFiles = (roomId) => {
 }
 
 const joinRoom = asyncHandler(async (req, res) => {
-  const { roomId, userId } = req.body;
+  const roomId = req.params.roomId;
+  const { userId } = req.body;
 
   // update users table
   const updateUser = db.prepare("UPDATE users SET room_id = ? WHERE id = ?");

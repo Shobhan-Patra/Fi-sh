@@ -1,9 +1,25 @@
-import { Link } from "react-router-dom"
+import { useState } from "react";
 
-export default function JoinRoom() {
+export default function JoinRoom({ onJoinRoom }) {
+  const [roomId, setRoomId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleJoinClick = async () => {
-    
+  const handleSubmit = async () => {
+    if (!roomId.trim()) {
+      setError("Please enter a Room Id");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    try {
+      await onJoinRoom(roomId);
+    } catch (error) {
+      setError("Failed to join room. Please check the ID.");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -17,14 +33,15 @@ export default function JoinRoom() {
         <input
           type="text"
           placeholder="Enter Room Code"
+          value={roomId}
+          onChange={(e) => setRoomId(e.target.value.toUpperCase())}
           className="p-3 bg-gray-800 border border-gray-700 rounded-lg w-64 text-center text-gray-100 placeholder-gray-400 focus:outline-none focus:ring focus:ring-indigo-500"
         />
-        <Link to="/room" className="flex items-center space-x-2">
           <button className="px-6 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition"
-          onClick={() => handleJoinClick}>
-            Join
+          onClick={handleSubmit}>
+            {isLoading ? "Joining..." : "Join Room"}
           </button>
-        </Link>
+          {error && <p className="text-red-400 mt-2">{error}</p>}
       </div>
     </div>
   );

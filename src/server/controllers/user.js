@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import db from "../db/db.js";
 import { generateRandomUserName } from "../utils/helperFunctions.js";
-const { randomUUID } = require("crypto");
+import { randomUUID } from "crypto";
 
 const createUser = asyncHandler(async (req, res) => {
   const userId = randomUUID();
