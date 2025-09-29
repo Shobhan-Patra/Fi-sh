@@ -1,6 +1,6 @@
 import { Plus, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
-import fishLogo from "../assets/nav-icon.png";
+import fishLogo from "../../assets/nav-icon.png";
 import UserNavbar from "./userCorner";
 
 export default function Navbar({ user }) {
@@ -36,23 +36,20 @@ export default function Navbar({ user }) {
         <div className="flex space-x-3">
           <Link
             to="/create-room"
-            className="flex items-center space-x-2 px-4 py-2 rounded-xl border border-indigo-400 text-indigo-400 font-medium hover:bg-gray-700 transition"
+            className="flex items-center space-x-2 px-2 py-2 rounded-xl border border-indigo-400 text-indigo-400 font-medium hover:bg-gray-700 transition"
           >
             <Plus size={18} />
             <span>Create Room</span>
           </Link>
-
-          {user ? (
-            <UserNavbar user={user} />
-          ) : (
             <Link
               to="/join-room"
-              className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-indigo-500 text-white font-medium shadow-md hover:bg-indigo-600 transition"
+              className="flex items-center space-x-2 px-2 py-2 rounded-xl bg-indigo-500 text-white font-medium shadow-md hover:bg-indigo-600 transition"
             >
               <LogIn size={18} />
               <span>Join Room</span>
             </Link>
-          )}
+
+            {user && <UserNavbar user={user}/>}
         </div>
       </div>
     </header>

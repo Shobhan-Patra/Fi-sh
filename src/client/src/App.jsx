@@ -1,5 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+import Navbar from "./components/Common/Navbar";
 import LandingPage from "./pages/LandingPage";
 import About from "./pages/About";
 import HowItWorks from "./pages/HowItWorks";
@@ -13,16 +18,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function App() {
-  // As soon as the user creates a room, a new user object instance will be created and stored in the data
-  // Whenever generate room is clicked -> generate user -> generate room
-  // user info = displayName -> should persist between page refreshes but not between browser closes
-  // id, null, displayName, joinedAt
-  // room info = roomId -> same
-
   const [user, setUser] = useState(null);
   const [sharedFiles, setSharedFiles] = useState([]);
   const [roomParticipants, setRoomParticipants] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Check if user is already saved
   useEffect(() => {
@@ -32,47 +32,83 @@ function App() {
     }
   }, []);
 
+  // TODO: remove in production
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (sessionStorage.getItem("roomId")) {
+        return;
+      }
+      sessionStorage.clear();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
+    const isInsideRoom = location.pathname.startsWith("/room/");
+
+    if (!isInsideRoom) {
+      console.log("User is not in a room, clearing session.");
+      sessionStorage.removeItem("roomId");
+    }
+  }, [location]);
+
   async function ensureUserExists() {
     // Check if we need to create a new user
     if (user) {
       return user;
     }
-    console.log("No existing user found, creating a new one...");
-    const userResponse = await axios.post("/api/user", {});
-    const currentUser = userResponse.data.data;
+    try {
+      console.log("No existing user found, creating a new one...");
+      const userResponse = await axios.post("/api/user/", {});
+      const currentUser = userResponse.data.data;
 
-    setUser(currentUser);
-    sessionStorage.setItem("user", JSON.stringify(currentUser));
-    return currentUser;
+      setUser(() => currentUser);
+      sessionStorage.setItem("user", JSON.stringify(currentUser));
+
+      console.log("From userCreation function:",currentUser);
+      return currentUser;
+    } catch (error) {
+      console.log("Error creating a new user: ", error);
+      throw new Error("Failed to create new user");
+    }
   }
 
   async function handleCreateRoom() {
     try {
       const currentUser = await ensureUserExists();
 
-      // Create the room using the (either existing or new) user's ID
-      const roomResponse = await axios.post("/api/room", {
-        createdBy: currentUser.id,
-      });
-      const newRoom = roomResponse.data.data;
-      sessionStorage.setItem("roomId", newRoom.id);
+      const roomResponse = await axios.post("/api/room/", { userId: currentUser.id });
+      console.log(roomResponse);
 
-      navigate(`/room/${newRoom.id}`);
+      const newRoomId = roomResponse.data.data.roomId;
+      const participants = roomResponse.data.data.participants;
+      
+      sessionStorage.setItem("roomId", newRoomId);
+      setRoomParticipants(participants);
+
+      navigate(`/room/${newRoomId}`);
     } catch (error) {
       console.error("Failed to create room:", error);
     }
   }
 
   async function handleJoinRoom(roomId) {
-    const currentUser = await ensureUserExists();
-
     try {
+      const currentUser = await ensureUserExists();
       const result = await axios.post(`/api/room/${roomId}`, {
         userId: currentUser.id,
       });
-  
+
+      sessionStorage.setItem("roomId", roomId);
       setSharedFiles(result.data.data.fileData || []);
       setRoomParticipants(result.data.data.participants || []);
+
+      console.log(result.data);
 
       navigate(`/room/${roomId}`);
     } catch (error) {
@@ -103,7 +139,7 @@ function App() {
             path="/room/:roomId"
             element={
               <Room
-                user={user}
+                currentUser={user}
                 sharedFiles={sharedFiles}
                 participants={roomParticipants}
               />

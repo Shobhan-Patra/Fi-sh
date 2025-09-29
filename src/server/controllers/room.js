@@ -6,24 +6,38 @@ import db from "../db/db.js";
 
 const createRoom = asyncHandler(async (req, res) => {
   const roomId = generateRoomId();
-  const { createdBy } = req.body;
+  const { userId } = req.body;
 
   const insertRoom = db.prepare(
     "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))"
   );
+  const updateUser = db.prepare("UPDATE users SET room_id = ? WHERE id = ?");
 
   try {
-    const result = insertRoom.run(roomId, createdBy);
-
-    if (result.changes < 1) {
-      throw new ApiError(400, "Couldn't insert into DB");
+    const insertRoomResult = insertRoom.run(roomId, userId);
+    const user = updateUser.run(roomId, userId);
+    if (user.changes === 0) {
+      throw new ApiError(400, "User is already in a room");
     }
+    if (insertRoomResult.changes === 0) {
+      throw new Error("Failed to create new Room");
+    }
+
+    const participants = getAllParticipants(roomId);
 
     deleteExpiredRooms();
 
-    return res
-      .status(200)
-      .json(new ApiResponse(200, roomId, "Room created successfully"));
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          roomId,
+          fileData: [],
+          participants: participants,
+        },
+        "Room created successfully"
+      )
+    );
   } catch (error) {
     console.log("Error creating room: ", error);
     throw new ApiError(400, "DB error");
@@ -32,26 +46,25 @@ const createRoom = asyncHandler(async (req, res) => {
 
 // Lists all the participants in a room
 const getAllParticipants = (roomId) => {
-  const getUsers = db.prepare("SELECT display_name FROM users WHERE room_id = ?");
+  const getUsers = db.prepare("SELECT * FROM users WHERE room_id = (?)");
   const users = getUsers.all(roomId);
   return users;
-}
+};
 
 // display all the files shared in that room
 const getAllSharedFiles = (roomId) => {
   const readFiles = db.prepare("SELECT * FROM files WHERE room_id = (?)");
   const fileData = readFiles.all(roomId);
   return fileData;
-}
+};
 
 const joinRoom = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   const { userId } = req.body;
-
-  // update users table
-  const updateUser = db.prepare("UPDATE users SET room_id = ? WHERE id = ?");
+  console.log(roomId, userId);
 
   try {
+    const updateUser = db.prepare("UPDATE users SET room_id = ? WHERE id = ?");
     const user = updateUser.run(roomId, userId);
     if (user.changes === 0) {
       throw new ApiError(400, "User is already in a room");
@@ -67,7 +80,7 @@ const joinRoom = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          {fileData, participants},
+          { fileData, participants },
           "User joined room successfully and files fetched successfully"
         )
       );
@@ -85,9 +98,9 @@ const leaveRoom = asyncHandler(async (req, res) => {
   );
 
   try {
-    const result = db.run(userId);
+    const result = removeRoomId.run(userId);
     if (result.changes === 0) {
-      throw new Error("NO changes made");
+      throw new Error("No changes made");
     }
 
     return res
@@ -101,11 +114,18 @@ const leaveRoom = asyncHandler(async (req, res) => {
 
 // Use lazy-cleanup i.e Delete records only when someone queries rooms table
 const deleteExpiredRooms = () => {
-  const deleteRoom = db.prepare("DELETE FROM rooms WHERE expires_at <= datetime('now')");
+  const deleteRoom = db.prepare(
+    "DELETE FROM rooms WHERE expires_at <= datetime('now')"
+  );
 
   try {
     const result = deleteRoom.run();
-    console.log("Lazy cleanup of rooms occured");
+    if (result.changes === 0) {
+      console.log("Lazy cleanup not needed");
+    }
+    else {
+      console.log("Lazy cleanup of rooms occured");
+    }
   } catch (error) {
     console.log("Error while deleting room: ", error);
     throw new ApiError(400, "DB error");

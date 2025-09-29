@@ -4,7 +4,7 @@ import { getDownloadUrl, getUploadUrl } from "../controllers/fileHandling.js";
 
 const router = Router();
 
-router.get("/", createRoom);
+router.post("/", createRoom);
 router.post("/:roomId", joinRoom);
 
 router.post("/:roomId/files", getUploadUrl);
