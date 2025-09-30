@@ -6,6 +6,8 @@ export default async function getDownloadUrl(key) {
       `/api/file/download?key=${encodeURIComponent(key)}`
     );
 
+    console.log(data);
+
     if (!data?.data.signedDownloadUrl) {
       throw new Error("Backend did not return a signed download URL");
     }

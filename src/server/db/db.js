@@ -27,7 +27,7 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS files (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     room_id TEXT NOT NULL,
     uploaded_by TEXT,
     file_name TEXT NOT NULL,

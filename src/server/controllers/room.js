@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { generateRoomId } from "../utils/helperFunctions.js";
 import db from "../db/db.js";
+import { getAllParticipants, getAllSharedFiles } from "../utils/dBCommonFunctions.js";
 
 const createRoom = asyncHandler(async (req, res) => {
   const roomId = generateRoomId();
@@ -43,20 +44,6 @@ const createRoom = asyncHandler(async (req, res) => {
     throw new ApiError(400, "DB error");
   }
 });
-
-// Lists all the participants in a room
-const getAllParticipants = (roomId) => {
-  const getUsers = db.prepare("SELECT * FROM users WHERE room_id = (?)");
-  const users = getUsers.all(roomId);
-  return users;
-};
-
-// display all the files shared in that room
-const getAllSharedFiles = (roomId) => {
-  const readFiles = db.prepare("SELECT * FROM files WHERE room_id = (?)");
-  const fileData = readFiles.all(roomId);
-  return fileData;
-};
 
 const joinRoom = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;

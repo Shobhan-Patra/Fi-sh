@@ -24,15 +24,20 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if user is already saved
+  // Check if user/participants is already saved
   useEffect(() => {
     const savedUser = sessionStorage.getItem("user");
+    // const savedParticipants = sessionStorage.getItem("participants");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+    // if (savedParticipants) {
+    //   setRoomParticipants(JSON.parse(savedParticipants));
+    // }
   }, []);
 
   // TODO: remove in production
+  // refresh clears user info from frontend
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (sessionStorage.getItem("roomId")) {
@@ -89,6 +94,7 @@ function App() {
       const participants = roomResponse.data.data.participants;
       
       sessionStorage.setItem("roomId", newRoomId);
+      // sessionStorage.setItem("participants", JSON.stringify(participants));
       setRoomParticipants(participants);
 
       navigate(`/room/${newRoomId}`);
@@ -105,16 +111,22 @@ function App() {
       });
 
       sessionStorage.setItem("roomId", roomId);
+      // sessionStorage.setItem("participants", JSON.stringify(result.data.data.participants));
       setSharedFiles(result.data.data.fileData || []);
       setRoomParticipants(result.data.data.participants || []);
 
-      console.log(result.data);
+      console.log("From join room: ",result.data);
 
       navigate(`/room/${roomId}`);
     } catch (error) {
       console.log("Error while joining room", error);
       throw new Error("Failed to join room");
     }
+  }
+
+  const handleFileUpdate = (newFile) => {
+    console.log("Files received in app.jsx: ", newFile);
+    setSharedFiles(newFile);
   }
 
   return (
@@ -141,6 +153,7 @@ function App() {
               <Room
                 currentUser={user}
                 sharedFiles={sharedFiles}
+                onFileUpload={handleFileUpdate}
                 participants={roomParticipants}
               />
             }

@@ -1,66 +1,66 @@
-// import { filesize } from "filesize";
 import axios from "axios";
-// import getDownloadUrl from "../utils/getDownloadUrl";
+import { filesize } from "filesize";
 import CardParticipantsList from "../components/RoomComponents/ParticipantsList";
 import UploadDropBox from "../components/RoomComponents/UploadDropBox";
 import SharedFiles from "../components/RoomComponents/SharedFiles";
 import RoomId from "../components/RoomComponents/RoomId";
+import getDownloadUrl from "../utils/getDownloadUrl.js";
+import { useEffect, useState } from "react";
 
-export default function Room({ currentUser, sharedFiles, participants }) { 
+export default function Room({ currentUser, sharedFiles, onFileUpload,  participants }) {
+  const [roomId, setRoomId] = useState("");
+  useEffect(() => {
+    const savedRoomId = sessionStorage.getItem("roomId");
+    if (savedRoomId) {
+      setRoomId(savedRoomId);
+    }
+  }, []);
+
   async function uploadFile(file) {
-    // Get upload URL
     const fileData = {
+      roomId: roomId,
+      userId: currentUser.id,
       filename: file.name,
+      fileSize: filesize(parseInt(file.size)),
       contentType: file.type,
+      downloadUrl: "",
     };
 
-    const { data } = await axios.post("/api/file/upload", fileData);
-    console.log(data);
-
+    // Get upload URL
+    const { data } = await axios.post("/api/file/upload", {
+      filename: fileData.filename,
+      contentType: fileData.contentType,
+    });
     console.log("Data: ", data);
+
     const signedUploadUrl = data.data.signedUploadUrl;
-    // const key = data.data.key;
+    const key = data.data.key;
 
     try {
       if (!signedUploadUrl) throw new Error("Error fetching upload Url");
 
       // Upload the file on the fetched URL
-      const uploadRes = await fetch(signedUploadUrl, {
-        method: "PUT",
-        body: file,
+      const uploadResult = await axios.put(signedUploadUrl, file, {
         headers: {
           "Content-Type": file.type,
-          "Content-Disposition": `attachment"`,
+          "Content-Disposition": "attachment",
         },
       });
+      console.log("Upload successful: ", uploadResult);
 
-      console.log("Upload Res: ", uploadRes);
 
-      if (!uploadRes.ok) {
-        const text = await uploadRes.text(); // read error XML
-        throw new Error(`Upload failed: ${uploadRes.status} - ${text}`);
-      }
+      const downloadUrl = await getDownloadUrl(key);
 
-      console.log("Upload successful");
+      // update local fileData
+      fileData.downloadUrl = downloadUrl;
 
-      // Get download Url
-      // const downloadUrl = await getDownloadUrl(key);
+      // update files table
+      await axios.post("/api/file/update", fileData);
 
-      // TODO:
-      //   // update files table
-      //   const res = await fetch("http://localhost:8000/api/file/update", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     filename: file.name,
-      //     contentType: file.type,
-      //   }),
-      // });
-
-      //Update Shared files list
-      // updateSharedFiles(file.name, key, file.size, downloadUrl);
+      // Update Shared files list
+      const files = await axios.get(`/api/file/all/${roomId}`);
+      console.log("Files before updating state: ", files);
+      onFileUpload(files.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -89,9 +89,12 @@ export default function Room({ currentUser, sharedFiles, participants }) {
   return (
     <section className="min-h-screen flex flex-col items-center bg-gray-900 text-white px-6 py-12">
       <RoomId />
-      < UploadDropBox handleFiles={handleFiles}/>
+      <UploadDropBox handleFiles={handleFiles} />
       <SharedFiles sharedFiles={sharedFiles} />
-      <CardParticipantsList participants={participants} currentUser={currentUser} />
+      <CardParticipantsList
+        participants={participants}
+        currentUser={currentUser}
+      />
     </section>
   );
 }

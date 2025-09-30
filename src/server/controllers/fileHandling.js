@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import s3 from "../config/R2_Bucket.js";
 import path from "path";
 import db from "../db/db.js";
+import { getAllSharedFiles } from "../utils/dBCommonFunctions.js";
 import { v4 as uuidv4 } from "uuid";
 import { ApiError } from "../utils/ApiError.js";
 
@@ -93,4 +94,19 @@ const updateFilesTable = asyncHandler(async (req, res) => {
   }
 });
 
-export { getUploadUrl, getDownloadUrl, updateFilesTable };
+const fetchAllSharedFiles = asyncHandler(async (req, res) => {
+  const roomId = req.params.roomId;
+  try {
+    const fileData = getAllSharedFiles(roomId);
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, fileData, "Fetched shared files successfully")
+      );
+  } catch (error) {
+    console.log("Failed to fetch shared files");
+    throw new ApiError(401, "Failed to fetch shared files");
+  }
+});
+
+export { getUploadUrl, getDownloadUrl, updateFilesTable, fetchAllSharedFiles };
