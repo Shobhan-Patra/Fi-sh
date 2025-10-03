@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import s3 from "../config/R2_Bucket.js";
 import path from "path";
 import db from "../db/db.js";
-import { getAllSharedFiles } from "../utils/dBCommonFunctions.js";
+import { getAllParticipants, getAllSharedFiles } from "../utils/dBCommonFunctions.js";
 import { v4 as uuidv4 } from "uuid";
 import { ApiError } from "../utils/ApiError.js";
 
@@ -25,7 +25,7 @@ const getUploadUrl = asyncHandler(async (req, res) => {
     ContentType: contentType,
   });
 
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 60 * 4 });
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 60 * 4 }); // link expires in 4 hours
 
   res
     .status(200)
@@ -48,7 +48,7 @@ const getDownloadUrl = asyncHandler(async (req, res) => {
   });
 
   const downloadUrl = await getSignedUrl(s3, command, {
-    expiresIn: 60 * 50 * 4,
+    expiresIn: 60 * 60 * 4, // valid for 4 hours
   });
 
   res
@@ -94,14 +94,15 @@ const updateFilesTable = asyncHandler(async (req, res) => {
   }
 });
 
-const fetchAllSharedFiles = asyncHandler(async (req, res) => {
+const fetchSharedFilesAndRoomParticipants = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   try {
     const fileData = getAllSharedFiles(roomId);
+    const participants = getAllParticipants(roomId);
     return res
       .status(200)
       .json(
-        new ApiResponse(200, fileData, "Fetched shared files successfully")
+        new ApiResponse(200, {fileData, participants}, "Fetched shared files successfully")
       );
   } catch (error) {
     console.log("Failed to fetch shared files");
@@ -109,4 +110,4 @@ const fetchAllSharedFiles = asyncHandler(async (req, res) => {
   }
 });
 
-export { getUploadUrl, getDownloadUrl, updateFilesTable, fetchAllSharedFiles };
+export { getUploadUrl, getDownloadUrl, updateFilesTable, fetchSharedFilesAndRoomParticipants };

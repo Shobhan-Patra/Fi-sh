@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 
-export default function RoomId() {
-  const [roomId, setRoomId] = useState("");
-  useEffect(() => {
-    const savedRoomId = sessionStorage.getItem("roomId");
-    if (savedRoomId) {
-      setRoomId(savedRoomId);
-    }
-  }, []);
+export default function RoomId({ roomId }) {
+  // const [roomId, setRoomId] = useState("");
+  // useEffect(() => {
+  //   const savedRoomId = sessionStorage.getItem("roomId");
+  //   if (savedRoomId) {
+  //     setRoomId(savedRoomId);
+  //   }
+  // }, []);
   
   console.log(roomId);
 

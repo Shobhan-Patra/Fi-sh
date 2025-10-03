@@ -26,13 +26,7 @@ const createUser = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          userRow,
-          "User created successfully"
-        )
-      );
+      .json(new ApiResponse(200, userRow, "User created successfully"));
   } catch (error) {
     console.log("Error creating user: ", error);
     throw new ApiError(400, "Error creating user");
@@ -47,12 +41,42 @@ const deleteExpiredUsers = () => {
 
   try {
     const result = deleteUser.run();
-    console.log("Lazy cleanup of users occured");
-
+    if (result.changes === 0) {
+      console.log("Lazy cleanup not needed");
+    } else {
+      console.log("Lazy cleanup of rooms occured");
+    }
   } catch (error) {
     console.log("Error while deleting expired user: ", error);
     throw new ApiError(400, "DB error");
   }
 };
 
-export { createUser };
+const getRoomId = asyncHandler(async (req, res) => {
+  const userId = req.params.userId;
+  const getRoomId = db.prepare("SELECT room_id FROM users WHERE id = (?)");
+
+  try {
+    const result = getRoomId.get(userId);
+    if (result.length === 0) {
+      throw new ApiError("User not found");
+    }
+
+    console.log(result);
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+         { roomId: result.room_id },
+          "Room Id fetched succesfully"
+        )
+      );
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(400, error);
+  }
+});
+
+export { createUser, getRoomId };

@@ -3,7 +3,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { generateRoomId } from "../utils/helperFunctions.js";
 import db from "../db/db.js";
-import { getAllParticipants, getAllSharedFiles } from "../utils/dBCommonFunctions.js";
 
 const createRoom = asyncHandler(async (req, res) => {
   const roomId = generateRoomId();
@@ -24,7 +23,7 @@ const createRoom = asyncHandler(async (req, res) => {
       throw new Error("Failed to create new Room");
     }
 
-    const participants = getAllParticipants(roomId);
+    // const participants = getAllParticipants(roomId);
 
     deleteExpiredRooms();
 
@@ -33,8 +32,8 @@ const createRoom = asyncHandler(async (req, res) => {
         200,
         {
           roomId,
-          fileData: [],
-          participants: participants,
+          // fileData: [],
+          // participants: participants,
         },
         "Room created successfully"
       )
@@ -57,8 +56,8 @@ const joinRoom = asyncHandler(async (req, res) => {
       throw new ApiError(400, "User is already in a room");
     }
 
-    const fileData = getAllSharedFiles(roomId);
-    const participants = getAllParticipants(roomId);
+    // const fileData = getAllSharedFiles(roomId);
+    // const participants = getAllParticipants(roomId);
 
     deleteExpiredRooms();
 
@@ -67,7 +66,8 @@ const joinRoom = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { fileData, participants },
+          // { fileData, participants },
+          {},
           "User joined room successfully and files fetched successfully"
         )
       );
@@ -78,7 +78,7 @@ const joinRoom = asyncHandler(async (req, res) => {
 });
 
 const leaveRoom = asyncHandler(async (req, res) => {
-  const { userId } = req.body;
+  const userId = req.params.userId;
 
   const removeRoomId = db.prepare(
     "UPDATE users SET room_id = NULL WHERE id = ?"
@@ -87,7 +87,7 @@ const leaveRoom = asyncHandler(async (req, res) => {
   try {
     const result = removeRoomId.run(userId);
     if (result.changes === 0) {
-      throw new Error("No changes made");
+      throw new ApiError(404, "User not found");
     }
 
     return res

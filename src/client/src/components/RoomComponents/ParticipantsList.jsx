@@ -1,5 +1,17 @@
 export default function CardParticipantsList({ participants, currentUser }) {
   console.log(participants);
+  if (!participants || !currentUser) {
+    return (
+      <div className="w-full max-w-3xl mx-auto my-14">
+      <h3 className="text-2xl font-bold mb-4 text-indigo-400">
+        Participants
+      </h3>
+      <div className="bg-gray-800 rounded-xl p-6 text-center text-gray-400">
+        <p>You are the only one in the room. Share the code to invite others!</p>
+      </div>
+    </div>
+    );
+  }
   return (
     <div className="w-full max-w-3xl mx-auto my-14">
       <h3 className="text-2xl font-bold mb-4 text-indigo-400">

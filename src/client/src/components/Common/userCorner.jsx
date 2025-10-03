@@ -9,7 +9,7 @@ export default function UserNavbar({ user }) {
             {initials}
           </span>
         </div>
-        <span className="hidden sm:inline font-medium text-white text-sm">
+        <span className="font-medium text-white text-sm">
         {displayName}
       </span>
       </div>

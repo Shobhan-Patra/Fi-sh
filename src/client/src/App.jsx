@@ -13,52 +13,31 @@ import CreateRoom from "./pages/CreateRoom";
 import JoinRoom from "./pages/JoinRoom";
 import Footer from "./components/Common/Footer";
 import Room from "./pages/Room";
+import PrivacyPolicy from "./pages/Privacy";
+import TermsOfService from "./pages/TOS";
+import Support from "./pages/Support";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function App() {
   const [user, setUser] = useState(null);
-  const [sharedFiles, setSharedFiles] = useState([]);
-  const [roomParticipants, setRoomParticipants] = useState([]);
+
   const navigate = useNavigate();
   const location = useLocation();
 
   // Check if user/participants is already saved
   useEffect(() => {
     const savedUser = sessionStorage.getItem("user");
-    // const savedParticipants = sessionStorage.getItem("participants");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
-    // if (savedParticipants) {
-    //   setRoomParticipants(JSON.parse(savedParticipants));
-    // }
   }, []);
 
-  // TODO: remove in production
-  // refresh clears user info from frontend
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (sessionStorage.getItem("roomId")) {
-        return;
-      }
+    if (location.pathname.startsWith("/refresh-session/")) {
+      console.log("Clearing session.");
       sessionStorage.clear();
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
-  useEffect(() => {
-    const isInsideRoom = location.pathname.startsWith("/room/");
-
-    if (!isInsideRoom) {
-      console.log("User is not in a room, clearing session.");
-      sessionStorage.removeItem("roomId");
     }
   }, [location]);
 
@@ -75,7 +54,7 @@ function App() {
       setUser(() => currentUser);
       sessionStorage.setItem("user", JSON.stringify(currentUser));
 
-      console.log("From userCreation function:",currentUser);
+      console.log("From userCreation function:", currentUser);
       return currentUser;
     } catch (error) {
       console.log("Error creating a new user: ", error);
@@ -87,17 +66,12 @@ function App() {
     try {
       const currentUser = await ensureUserExists();
 
-      const roomResponse = await axios.post("/api/room/", { userId: currentUser.id });
+      const roomResponse = await axios.post("/api/room/", {
+        userId: currentUser.id,
+      });
       console.log(roomResponse);
 
-      const newRoomId = roomResponse.data.data.roomId;
-      const participants = roomResponse.data.data.participants;
-      
-      sessionStorage.setItem("roomId", newRoomId);
-      // sessionStorage.setItem("participants", JSON.stringify(participants));
-      setRoomParticipants(participants);
-
-      navigate(`/room/${newRoomId}`);
+      navigate(`/room/${roomResponse.data.data.roomId}`);
     } catch (error) {
       console.error("Failed to create room:", error);
     }
@@ -109,13 +83,7 @@ function App() {
       const result = await axios.post(`/api/room/${roomId}`, {
         userId: currentUser.id,
       });
-
-      sessionStorage.setItem("roomId", roomId);
-      // sessionStorage.setItem("participants", JSON.stringify(result.data.data.participants));
-      setSharedFiles(result.data.data.fileData || []);
-      setRoomParticipants(result.data.data.participants || []);
-
-      console.log("From join room: ",result.data);
+      console.log("From join room: ", result.data);
 
       navigate(`/room/${roomId}`);
     } catch (error) {
@@ -124,14 +92,22 @@ function App() {
     }
   }
 
-  const handleFileUpdate = (newFile) => {
-    console.log("Files received in app.jsx: ", newFile);
-    setSharedFiles(newFile);
-  }
+  const handleLeaveRoomClick = async (userId) => {
+    const result = await axios.post(`/api/room/leave/${userId}`, {});
+    try {
+      console.log(result);
+      setUser(null);
+      sessionStorage.removeItem("user");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      navigate("/");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100">
-      <Navbar user={user} />
+      <Navbar user={user} onLeaveRoom={handleLeaveRoomClick} />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -147,17 +123,11 @@ function App() {
             element={<JoinRoom onJoinRoom={handleJoinRoom} />}
           />
           <Route path="/room" element={<Room />} />
-          <Route
-            path="/room/:roomId"
-            element={
-              <Room
-                currentUser={user}
-                sharedFiles={sharedFiles}
-                onFileUpload={handleFileUpdate}
-                participants={roomParticipants}
-              />
-            }
-          />
+          <Route path="/room/:roomId" element={<Room currentUser={user} />} />
+
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/support" element={<Support />} />
         </Routes>
       </main>
       <Footer />

@@ -1,23 +1,53 @@
 import axios from "axios";
-import { filesize } from "filesize";
+import {filesize} from "filesize";
 import CardParticipantsList from "../components/RoomComponents/ParticipantsList";
 import UploadDropBox from "../components/RoomComponents/UploadDropBox";
 import SharedFiles from "../components/RoomComponents/SharedFiles";
 import RoomId from "../components/RoomComponents/RoomId";
 import getDownloadUrl from "../utils/getDownloadUrl.js";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
-export default function Room({ currentUser, sharedFiles, onFileUpload,  participants }) {
-  const [roomId, setRoomId] = useState("");
+export default function Room({ currentUser }) {
+  // const [roomId, setRoomId] = useState("");
+  const [sharedFiles, setSharedFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [roomParticipants, setRoomParticipants] = useState([]);
+  const { roomId } = useParams();
+
+  // useEffect(() => {
+  //   // const savedRoomId = sessionStorage.getItem("roomId");
+  //   // if (savedRoomId && savedRoomId === roomId) {
+  //   //   setRoomId(savedRoomId);
+  //   // }
+  //   setRoomId(roomId);
+  // }, [roomId]);
+
   useEffect(() => {
-    const savedRoomId = sessionStorage.getItem("roomId");
-    if (savedRoomId) {
-      setRoomId(savedRoomId);
+    if (!roomId) {
+      return;
     }
-  }, []);
+    const getAllData = async () => {
+      try {
+        setIsLoading(true);
+        // const result = await axios.get(`/api/file/data/${roomId}`);
+        const result = await axios.get(`/api/file/data/${roomId}`);
+        setSharedFiles(result.data.data.fileData);
+        setRoomParticipants(result.data.data.participants);
+      } catch (error) {
+        console.log(error);
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getAllData();
+  }, [roomId]);
 
   async function uploadFile(file) {
     const fileData = {
+      // roomId: roomId,
       roomId: roomId,
       userId: currentUser.id,
       filename: file.name,
@@ -48,19 +78,18 @@ export default function Room({ currentUser, sharedFiles, onFileUpload,  particip
       });
       console.log("Upload successful: ", uploadResult);
 
-
-      const downloadUrl = await getDownloadUrl(key);
-
       // update local fileData
-      fileData.downloadUrl = downloadUrl;
+      fileData.downloadUrl = await getDownloadUrl(key);
 
       // update files table
       await axios.post("/api/file/update", fileData);
 
       // Update Shared files list
-      const files = await axios.get(`/api/file/all/${roomId}`);
+      // const files = await axios.get(`/api/file/all/${roomId}`);
+      const files = await axios.get(`/api/file/data/${roomId}`);
       console.log("Files before updating state: ", files);
-      onFileUpload(files.data.data);
+      setSharedFiles(files.data.data.fileData);
+      setRoomParticipants(files.data.data.participants);
     } catch (error) {
       console.log(error);
     }
@@ -73,26 +102,25 @@ export default function Room({ currentUser, sharedFiles, onFileUpload,  particip
     });
   };
 
-  // const updateSharedFiles = (fileName, key, fileSize, url) => {
-  //   setSharedFiles((prevFiles) => [
-  //     ...prevFiles,
-  //     {
-  //       name: fileName,
-  //       key,
-  //       size: filesize(parseInt(fileSize)),
-  //       uploadedAt: new Date().toLocaleDateString(),
-  //       url,
-  //     },
-  //   ]);
-  // };
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="flex items-center space-x-4">
+        {/* The spinning loader icon */}
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
+        <span className="text-2xl font-medium text-gray-300">Loading...</span>
+      </div>
+    </div>
+    );
+  }
 
   return (
     <section className="min-h-screen flex flex-col items-center bg-gray-900 text-white px-6 py-12">
-      <RoomId />
+      <RoomId roomId={roomId} />
       <UploadDropBox handleFiles={handleFiles} />
       <SharedFiles sharedFiles={sharedFiles} />
       <CardParticipantsList
-        participants={participants}
+        participants={roomParticipants}
         currentUser={currentUser}
       />
     </section>
