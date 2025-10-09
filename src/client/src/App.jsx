@@ -93,8 +93,8 @@ function App() {
   }
 
   const handleLeaveRoomClick = async (userId) => {
-    const result = await axios.post(`/api/room/leave/${userId}`, {});
     try {
+      const result = await axios.post(`/api/room/leave/${userId}`, {});
       console.log(result);
       setUser(null);
       sessionStorage.removeItem("user");

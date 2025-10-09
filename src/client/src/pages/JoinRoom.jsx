@@ -41,7 +41,7 @@ export default function JoinRoom({ onJoinRoom }) {
             onChange={(e) =>
               setRoomId(e.target.value.toUpperCase().slice(0, 6))
             }
-            className="w-45 text-3xl bg-gray-800 px-6 py-3 rounded-xl shadow-lg border border-gray-700 text-center font-mono tracking-[.15em] text-gray-100 placeholder-gray-600 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-50 text-3xl bg-gray-800 px-6 py-3 rounded-xl shadow-lg border border-gray-700 text-center font-mono tracking-[.15em] text-gray-100 placeholder-gray-600 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 transition"
           />
           <button
             onClick={handleSubmit}

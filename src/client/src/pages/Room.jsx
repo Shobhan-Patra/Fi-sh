@@ -14,15 +14,8 @@ export default function Room({ currentUser }) {
   const [sharedFiles, setSharedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [roomParticipants, setRoomParticipants] = useState([]);
+  const [uploadingFiles, setUploadingFiles] = useState([]);
   const { roomId } = useParams();
-
-  // useEffect(() => {
-  //   // const savedRoomId = sessionStorage.getItem("roomId");
-  //   // if (savedRoomId && savedRoomId === roomId) {
-  //   //   setRoomId(savedRoomId);
-  //   // }
-  //   setRoomId(roomId);
-  // }, [roomId]);
 
   useEffect(() => {
     if (!roomId) {
@@ -47,7 +40,6 @@ export default function Room({ currentUser }) {
 
   async function uploadFile(file) {
     const fileData = {
-      // roomId: roomId,
       roomId: roomId,
       userId: currentUser.id,
       filename: file.name,
@@ -55,6 +47,9 @@ export default function Room({ currentUser }) {
       contentType: file.type,
       downloadUrl: "",
     };
+
+    const uploadId = `${file.name}-${file.lastModified}`;
+    setUploadingFiles(prev => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
 
     // Get upload URL
     const { data } = await axios.post("/api/file/upload", {
@@ -75,11 +70,17 @@ export default function Room({ currentUser }) {
           "Content-Type": file.type,
           "Content-Disposition": "attachment",
         },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadingFiles(prev => 
+            prev.map(f => f.id === uploadId ? { ...f, progress: percentCompleted } : f)
+          );
+        },
       });
       console.log("Upload successful: ", uploadResult);
 
       // update local fileData
-      fileData.downloadUrl = await getDownloadUrl(key);
+      fileData.downloadUrl = await getDownloadUrl(key, fileData.filename);
 
       // update files table
       await axios.post("/api/file/update", fileData);
@@ -92,6 +93,9 @@ export default function Room({ currentUser }) {
       setRoomParticipants(files.data.data.participants);
     } catch (error) {
       console.log(error);
+    }
+    finally {
+      setUploadingFiles(prev => prev.filter(f => f.id !== uploadId));
     }
   }
 
@@ -118,7 +122,7 @@ export default function Room({ currentUser }) {
     <section className="min-h-screen flex flex-col items-center bg-gray-900 text-white px-6 py-12">
       <RoomId roomId={roomId} />
       <UploadDropBox handleFiles={handleFiles} />
-      <SharedFiles sharedFiles={sharedFiles} />
+      <SharedFiles sharedFiles={sharedFiles} uploadingFiles={uploadingFiles}/>
       <CardParticipantsList
         participants={roomParticipants}
         currentUser={currentUser}

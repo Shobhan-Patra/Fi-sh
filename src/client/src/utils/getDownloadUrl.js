@@ -1,10 +1,13 @@
 import axios from "axios";
 
-export default async function getDownloadUrl(key) {
+export default async function getDownloadUrl(key, filename) {
   try {
-    const { data } = await axios.get(
-      `/api/file/download?key=${encodeURIComponent(key)}`
-    );
+    const { data } = await axios.get('/api/file/download', {
+      params: {
+        key: key,
+        filename: filename,
+      }
+    });
 
     console.log(data);
 

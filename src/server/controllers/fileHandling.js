@@ -25,7 +25,7 @@ const getUploadUrl = asyncHandler(async (req, res) => {
     ContentType: contentType,
   });
 
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 60 * 4 }); // link expires in 4 hours
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 60 * 1 }); // link expires in 1 hour
 
   res
     .status(200)
@@ -39,12 +39,12 @@ const getUploadUrl = asyncHandler(async (req, res) => {
 });
 
 const getDownloadUrl = asyncHandler(async (req, res) => {
-  const { key } = req.query;
+  const { key, filename } = req.query;
 
   const command = new GetObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME,
     Key: key,
-    ResponseContentDisposition: `attachment`,
+    ResponseContentDisposition: `attachment; filename="${filename}"`,
   });
 
   const downloadUrl = await getSignedUrl(s3, command, {

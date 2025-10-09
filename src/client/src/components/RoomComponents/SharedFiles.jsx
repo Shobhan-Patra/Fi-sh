@@ -1,6 +1,24 @@
 import { Download } from "lucide-react";
 
-export default function SharedFiles({ sharedFiles }) {
+function UploadingFileItem({ file }) {
+  return (
+    <div className="bg-gray-800 rounded-xl p-4 space-y-2">
+      <div className="flex justify-between items-center text-sm">
+        <p className="font-medium text-white truncate">{file.name}</p>
+        <p className="font-semibold text-indigo-300">{file.progress}%</p>
+      </div>
+      {/* The visual progress bar */}
+      <div className="w-full bg-gray-700 rounded-full h-2">
+        <div 
+          className="bg-indigo-500 h-2 rounded-full transition-all duration-150"
+          style={{ width: `${file.progress}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+}
+
+export default function SharedFiles({ sharedFiles, uploadingFiles }) {
   console.log("Files inside sharedFiles component: ", sharedFiles);
 
   if (!Array.isArray(sharedFiles) || sharedFiles.length === 0) {
@@ -20,6 +38,11 @@ export default function SharedFiles({ sharedFiles }) {
     <div className="w-full max-w-3xl">
       <h3 className="text-2xl font-bold mb-6 text-indigo-400">Shared Files</h3>
       <div className="space-y-4">
+        {/* Render the list of files currently uploading */}
+        {uploadingFiles.map((file) => (
+          <UploadingFileItem key={file.id} file={file} />
+        ))}
+
         {sharedFiles.map((file) => (
           <div
           key={file.id}
