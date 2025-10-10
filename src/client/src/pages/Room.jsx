@@ -7,24 +7,24 @@ import RoomId from '../components/RoomComponents/RoomId';
 import getDownloadUrl from '../utils/getDownloadUrl.js';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 
 export default function Room({ currentUser }) {
-  // const [roomId, setRoomId] = useState("");
   const [sharedFiles, setSharedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [roomParticipants, setRoomParticipants] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState([]);
+  const [error, setError] = useState('');
   const { roomId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(currentUser);
+    // console.log(currentUser);
     if (!roomId) {
       return;
     }
     if (!sessionStorage.getItem('user')) {
-      console.log('No saved user found, redirecting to join room page');
+      // console.log('No saved user found, redirecting to join room page');
       navigate('/join-room', {
         replace: true, // Replaces the history entry, so the user can't click "back" into this redirect loop.
         state: { roomId: roomId },
@@ -33,13 +33,13 @@ export default function Room({ currentUser }) {
     const getAllData = async () => {
       try {
         setIsLoading(true);
-        // const result = await axios.get(`/api/file/data/${roomId}`);
         const result = await axios.get(
           `/api/file/data/${roomId}/${currentUser.id}`
         );
         setSharedFiles(result.data.data.fileData);
         setRoomParticipants(result.data.data.participants);
       } catch (error) {
+        setError("Couldn't load room data, Please refresh the page");
         console.log(error);
         return;
       } finally {
@@ -70,7 +70,6 @@ export default function Room({ currentUser }) {
       filename: fileData.filename,
       contentType: fileData.contentType,
     });
-    console.log('Data: ', data);
 
     const signedUploadUrl = data.data.signedUploadUrl;
     const key = data.data.key;
@@ -79,7 +78,7 @@ export default function Room({ currentUser }) {
       if (!signedUploadUrl) throw new Error('Error fetching upload Url');
 
       // Upload the file on the fetched URL
-      const uploadResult = await axios.put(signedUploadUrl, file, {
+      await axios.put(signedUploadUrl, file, {
         headers: {
           'Content-Type': file.type,
           'Content-Disposition': 'attachment',
@@ -95,7 +94,6 @@ export default function Room({ currentUser }) {
           );
         },
       });
-      console.log('Upload successful: ', uploadResult);
 
       // update local fileData
       fileData.downloadUrl = await getDownloadUrl(key, fileData.filename);
@@ -104,20 +102,26 @@ export default function Room({ currentUser }) {
       await axios.post('/api/file/update', fileData);
 
       // Update Shared files list
-      // const files = await axios.get(`/api/file/all/${roomId}`);
       const files = await axios.get(`/api/file/data/${roomId}`);
-      console.log('Files before updating state: ', files);
       setSharedFiles(files.data.data.fileData);
       setRoomParticipants(files.data.data.participants);
     } catch (error) {
+      setError('Error uploading file, Please retry later');
       console.log(error);
+      setUploadingFiles((prev) =>
+        prev.map((f) =>
+          f.id === uploadId
+            ? { ...f, progress: 100, error: 'Upload failed' }
+            : f
+        )
+      );
     } finally {
       setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
     }
   }
 
   const handleFiles = (files) => {
-    console.log('Selected files:', files);
+    // console.log('Selected files:', files);
     Array.from(files).forEach((file) => {
       uploadFile(file);
     });
@@ -131,6 +135,16 @@ export default function Room({ currentUser }) {
           <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
           <span className="text-2xl font-medium text-gray-300">Loading...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-red-400">
+        <AlertTriangle className="h-12 w-12 mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
+        <p className="text-lg">{error}</p>
       </div>
     );
   }

@@ -23,17 +23,13 @@ const createRoom = asyncHandler(async (req, res) => {
       throw new Error('Failed to create new Room');
     }
 
-    // const participants = getAllParticipants(roomId);
-
     deleteExpiredRooms();
 
     return res.status(200).json(
       new ApiResponse(
         200,
         {
-          roomId,
-          // fileData: [],
-          // participants: participants,
+          roomId
         },
         'Room created successfully'
       )
@@ -47,7 +43,6 @@ const createRoom = asyncHandler(async (req, res) => {
 const joinRoom = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   const { userId } = req.body;
-  console.log(roomId, userId);
 
   try {
     const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
@@ -56,15 +51,11 @@ const joinRoom = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'User is already in a room');
     }
 
-    // const fileData = getAllSharedFiles(roomId);
-    // const participants = getAllParticipants(roomId);
-
     deleteExpiredRooms();
 
     return res.status(200).json(
       new ApiResponse(
         200,
-        // { fileData, participants },
         {},
         'User joined room successfully and files fetched successfully'
       )
@@ -107,10 +98,8 @@ const deleteExpiredRooms = () => {
 
   try {
     const result = deleteRoom.run();
-    if (result.changes === 0) {
-      console.log('Lazy cleanup not needed');
-    } else {
-      console.log(`Cleaned up ${result.changes} expired rooms.`);
+    if (result.changes !== 0) {
+      console.log(`Cleaned up ${result.changes} expired room records.`);
     }
   } catch (error) {
     console.log('Error while deleting room: ', error);

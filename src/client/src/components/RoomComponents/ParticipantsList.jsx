@@ -1,5 +1,5 @@
 export default function CardParticipantsList({ participants, currentUser }) {
-  console.log(participants, currentUser);
+  // console.log(participants, currentUser);
   if (!participants || !currentUser) {
     return (
       <div className="w-full max-w-3xl mx-auto my-14">

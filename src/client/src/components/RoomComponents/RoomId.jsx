@@ -9,7 +9,7 @@ export default function RoomId({ roomId }) {
   //   }
   // }, []);
 
-  console.log(roomId);
+  // console.log(roomId);
 
   if (!roomId) {
     return (

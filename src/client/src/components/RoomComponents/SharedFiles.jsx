@@ -19,7 +19,7 @@ function UploadingFileItem({ file }) {
 }
 
 export default function SharedFiles({ sharedFiles, uploadingFiles }) {
-  console.log('Files inside sharedFiles component: ', sharedFiles);
+  // console.log('Files inside sharedFiles component: ', sharedFiles);
 
   if (!Array.isArray(sharedFiles) || sharedFiles.length === 0) {
     return (
@@ -62,7 +62,6 @@ export default function SharedFiles({ sharedFiles, uploadingFiles }) {
               <Download size={18} />
               <span>Download</span>
             </a>
-            {console.log('File inside the element: ', file)}
           </div>
         ))}
       </div>

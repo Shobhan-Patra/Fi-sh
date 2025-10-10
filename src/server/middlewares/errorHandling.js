@@ -1,9 +1,6 @@
-// ErrorHandler.js
 import { ApiError } from '../utils/ApiError.js';
 
 const ErrorHandler = (err, req, res, next) => {
-  console.log('Middleware Error Handling');
-
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
       success: false,

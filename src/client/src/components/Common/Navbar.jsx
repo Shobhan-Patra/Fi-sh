@@ -30,11 +30,11 @@ export default function Navbar({ user, onLeaveRoom }) {
         throw new Error('Failed to go back to room');
       }
 
-      console.log(result);
+      // console.log(result);
 
       navigate(`/room/${result.data.data.roomId}`);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       navigate(`/create-room`);
     }
   };

@@ -1,5 +1,5 @@
 export default function UserNavbar({ user }) {
-  // console.log(user);
+  // // console.log(user);
   const displayName = user.display_name;
   const initials = displayName.substring(0, 2).toUpperCase();
   return (

@@ -3,7 +3,10 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import Navbar from './components/Common/Navbar';
 import LandingPage from './pages/LandingPage';
 import About from './pages/About';
@@ -16,17 +19,27 @@ import Room from './pages/Room';
 import PrivacyPolicy from './pages/Privacy';
 import TermsOfService from './pages/TOS';
 import Support from './pages/Support';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+
+function ErrorToast({ message, onClose }) {
+  if (!message) return null;
+
+  return (
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-600 text-white py-2 px-6 rounded-lg shadow-lg flex items-center z-50">
+      <p>{message}</p>
+      <button onClick={onClose} className="ml-4 font-bold text-lg">
+        &times;
+      </button>
+    </div>
+  );
+}
 
 function App() {
   const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if user/participants is already saved
   useEffect(() => {
     const savedUser = sessionStorage.getItem('user');
     if (savedUser) {
@@ -36,69 +49,68 @@ function App() {
 
   useEffect(() => {
     if (location.pathname.startsWith('/refresh-session')) {
-      console.log('Clearing session.');
       sessionStorage.clear();
     }
   }, [location]);
 
+  // Auto-dismiss logic for error toasts
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   async function ensureUserExists() {
-    // Check if we need to create a new user
     if (user) {
       return user;
     }
     try {
-      console.log('No existing user found, creating a new one...');
       const userResponse = await axios.post('/api/user/', {});
       const currentUser = userResponse.data.data;
-
       setUser(() => currentUser);
       sessionStorage.setItem('user', JSON.stringify(currentUser));
-
-      console.log('From userCreation function:', currentUser);
       return currentUser;
-    } catch (error) {
-      console.log('Error creating a new user: ', error);
-      throw new Error('Failed to create new user');
+    } catch (err) {
+      console.error('Error creating a new user: ', err);
+      throw new Error('Could not create a new user session.');
     }
   }
 
   async function handleCreateRoom() {
     try {
       const currentUser = await ensureUserExists();
-
       const roomResponse = await axios.post('/api/room/', {
         userId: currentUser.id,
       });
-      console.log(roomResponse);
-
       navigate(`/room/${roomResponse.data.data.roomId}`);
-    } catch (error) {
-      console.error('Failed to create room:', error);
+    } catch (err) {
+      setError('Failed to create the room. Please try again.');
+      console.error('Failed to create room:', err);
     }
   }
 
   async function handleJoinRoom(roomId) {
     try {
       const currentUser = await ensureUserExists();
-      const result = await axios.post(`/api/room/${roomId}`, {
+      await axios.post(`/api/room/${roomId}`, {
         userId: currentUser.id,
       });
-      console.log('From join room: ', result.data);
-
       navigate(`/room/${roomId}`);
-    } catch (error) {
-      console.log('Error while joining room', error);
-      throw new Error('Failed to join room');
+    } catch (err) {
+      setError('Could not join the room. Check the ID and try again.');
+      console.error('Error while joining room', err);
     }
   }
 
   const handleLeaveRoomClick = async (userId) => {
     try {
-      console.log('Leave room clicked');
-      const result = await axios.post(`/api/room/leave/${userId}`, {});
-      console.log(result);
-    } catch (error) {
-      console.log(error);
+      await axios.post(`/api/room/leave/${userId}`, {});
+    } catch (err) {
+      setError('An error occurred while leaving the room.');
+      console.error(err);
     } finally {
       setUser(null);
       sessionStorage.clear();
@@ -108,9 +120,12 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100">
+      <ErrorToast message={error} onClose={() => setError(null)} />
+
       <Navbar user={user} onLeaveRoom={handleLeaveRoomClick} />
       <main className="flex-1">
         <Routes>
+          {/* ... Your Routes remain the same ... */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
@@ -125,7 +140,6 @@ function App() {
           />
           <Route path="/room" element={<Room />} />
           <Route path="/room/:roomId" element={<Room currentUser={user} />} />
-
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/support" element={<Support />} />

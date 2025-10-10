@@ -41,10 +41,8 @@ const deleteExpiredUsers = () => {
 
   try {
     const result = deleteUser.run();
-    if (result.changes === 0) {
-      console.log('Lazy cleanup not needed');
-    } else {
-      console.log('Lazy cleanup of rooms occured');
+    if (result.changes !== 0) {
+      console.log(`Cleaned up ${result.changes} expired user records.`);
     }
   } catch (error) {
     console.log('Error while deleting expired user: ', error);
@@ -61,8 +59,6 @@ const getRoomId = asyncHandler(async (req, res) => {
     if (result.length === 0) {
       throw new ApiError('User not found');
     }
-
-    console.log(result);
 
     deleteExpiredUsers();
 

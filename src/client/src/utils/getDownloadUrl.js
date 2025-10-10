@@ -9,13 +9,13 @@ export default async function getDownloadUrl(key, filename) {
       },
     });
 
-    console.log(data);
+    // console.log(data);
 
     if (!data?.data.signedDownloadUrl) {
       throw new Error('Backend did not return a signed download URL');
     }
 
-    console.log('Download URL Result:', data.data.signedDownloadUrl);
+    // console.log('Download URL Result:', data.data.signedDownloadUrl);
 
     return data.data.signedDownloadUrl;
   } catch (err) {

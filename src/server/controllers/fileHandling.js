@@ -102,7 +102,6 @@ const updateFilesTable = asyncHandler(async (req, res) => {
 const fetchSharedFilesAndRoomParticipants = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   const userId = req.params.userId;
-  console.log(userId);
   const IsUserInRoom = db.prepare(
     'SELECT id FROM users WHERE room_id = (?) AND id = (?)'
   );
@@ -144,9 +143,7 @@ const deleteExpiredFileEntries = () => {
 
   try {
     const result = deleteFileEntry.run();
-    if (result.changes === 0) {
-      console.log('Lazy cleanup not needed');
-    } else {
+    if (result.changes !== 0) {
       console.log(`Cleaned up ${result.changes} expired file records.`);
     }
   } catch (error) {
