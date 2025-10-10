@@ -101,7 +101,7 @@ function App() {
       console.log(error);
     } finally {
       setUser(null);
-      sessionStorage.removeItem("user");
+      sessionStorage.clear();
       navigate("/");
     }
   };
@@ -124,7 +124,7 @@ function App() {
             element={<JoinRoom onJoinRoom={handleJoinRoom} />}
           />
           <Route path="/room" element={<Room />} />
-          <Route path="/room/:roomId" element={<Room currentUser={user} ensureUserExists={ensureUserExists}/>} />
+          <Route path="/room/:roomId" element={<Room currentUser={user} onJoinRoom={handleJoinRoom}/>} />
 
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />

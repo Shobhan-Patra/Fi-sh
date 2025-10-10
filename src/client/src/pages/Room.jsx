@@ -1,12 +1,12 @@
 import axios from "axios";
-import {filesize} from "filesize";
+import { filesize } from "filesize";
 import CardParticipantsList from "../components/RoomComponents/ParticipantsList";
 import UploadDropBox from "../components/RoomComponents/UploadDropBox";
 import SharedFiles from "../components/RoomComponents/SharedFiles";
 import RoomId from "../components/RoomComponents/RoomId";
 import getDownloadUrl from "../utils/getDownloadUrl.js";
-import {useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 export default function Room({ currentUser }) {
@@ -16,16 +16,26 @@ export default function Room({ currentUser }) {
   const [roomParticipants, setRoomParticipants] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState([]);
   const { roomId } = useParams();
+  const navigate = useNavigate();
+
 
   useEffect(() => {
-    if (!roomId || !currentUser) {
+    console.log(currentUser);
+    if (!roomId) {
       return;
+    }
+    if (!sessionStorage.getItem("user")) {
+      console.log("No saved user found, redirecting to join room page");
+      navigate('/join-room', { 
+        replace: true, // Replaces the history entry, so the user can't click "back" into this redirect loop.
+        state: { roomId: roomId }
+      });
     }
     const getAllData = async () => {
       try {
         setIsLoading(true);
         // const result = await axios.get(`/api/file/data/${roomId}`);
-        const result = await axios.get(`/api/file/data/${roomId}`);
+        const result = await axios.get(`/api/file/data/${roomId}/${currentUser.id}`);
         setSharedFiles(result.data.data.fileData);
         setRoomParticipants(result.data.data.participants);
       } catch (error) {
@@ -36,7 +46,7 @@ export default function Room({ currentUser }) {
       }
     };
     getAllData();
-  }, [roomId, currentUser]);
+  }, [roomId, currentUser, navigate]);
 
   async function uploadFile(file) {
     const fileData = {
@@ -49,7 +59,10 @@ export default function Room({ currentUser }) {
     };
 
     const uploadId = `${file.name}-${file.lastModified}`;
-    setUploadingFiles(prev => [...prev, { id: uploadId, name: file.name, progress: 0 }]);
+    setUploadingFiles((prev) => [
+      ...prev,
+      { id: uploadId, name: file.name, progress: 0 },
+    ]);
 
     // Get upload URL
     const { data } = await axios.post("/api/file/upload", {
@@ -71,9 +84,13 @@ export default function Room({ currentUser }) {
           "Content-Disposition": "attachment",
         },
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadingFiles(prev => 
-            prev.map(f => f.id === uploadId ? { ...f, progress: percentCompleted } : f)
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadingFiles((prev) =>
+            prev.map((f) =>
+              f.id === uploadId ? { ...f, progress: percentCompleted } : f
+            )
           );
         },
       });
@@ -93,9 +110,8 @@ export default function Room({ currentUser }) {
       setRoomParticipants(files.data.data.participants);
     } catch (error) {
       console.log(error);
-    }
-    finally {
-      setUploadingFiles(prev => prev.filter(f => f.id !== uploadId));
+    } finally {
+      setUploadingFiles((prev) => prev.filter((f) => f.id !== uploadId));
     }
   }
 
@@ -109,12 +125,12 @@ export default function Room({ currentUser }) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <div className="flex items-center space-x-4">
-        {/* The spinning loader icon */}
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
-        <span className="text-2xl font-medium text-gray-300">Loading...</span>
+        <div className="flex items-center space-x-4">
+          {/* The spinning loader icon */}
+          <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
+          <span className="text-2xl font-medium text-gray-300">Loading...</span>
+        </div>
       </div>
-    </div>
     );
   }
 
@@ -122,7 +138,7 @@ export default function Room({ currentUser }) {
     <section className="min-h-screen flex flex-col items-center bg-gray-900 text-white px-6 py-12">
       <RoomId roomId={roomId} />
       <UploadDropBox handleFiles={handleFiles} />
-      <SharedFiles sharedFiles={sharedFiles} uploadingFiles={uploadingFiles}/>
+      <SharedFiles sharedFiles={sharedFiles} uploadingFiles={uploadingFiles} />
       <CardParticipantsList
         participants={roomParticipants}
         currentUser={currentUser}
