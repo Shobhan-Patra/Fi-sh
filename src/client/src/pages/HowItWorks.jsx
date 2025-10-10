@@ -12,7 +12,7 @@ export default function HowItWorks() {
           {[
             { step: "1️⃣ Create a Room", text: "Click 'Create Room' to generate a secure space." },
             { step: "2️⃣ Upload Files", text: "Drag & drop your files, or select them manually." },
-            { step: "3️⃣ Share the Link", text: "Send the unique room link to others." },
+            { step: "3️⃣ Share the Room Code", text: "Send the unique room code to others." },
             { step: "4️⃣ Instant Access", text: "They can instantly download or view files securely." },
           ].map((item, i) => (
             <div key={i} className="p-6 bg-gray-800 rounded-xl shadow">

@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function JoinRoom({ onJoinRoom }) {
-  const [roomId, setRoomId] = useState("");
+  const location = useLocation();
+  const [roomId, setRoomId] = useState(location.state?.roomId || "");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
