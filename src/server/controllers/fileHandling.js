@@ -85,6 +85,8 @@ const updateFilesTable = asyncHandler(async (req, res) => {
       throw new Error("No changes made");
     }
 
+    deleteExpiredFileEntries();
+
     return res
       .status(200)
       .json(new ApiResponse(200, null, "Files table updated successfully"));
@@ -96,9 +98,19 @@ const updateFilesTable = asyncHandler(async (req, res) => {
 
 const fetchSharedFilesAndRoomParticipants = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
+  const userId = req.params.userId;
+  console.log(userId);
+  const IsUserInRoom = db.prepare("SELECT id FROM users WHERE room_id = (?) AND id = (?)");
   try {
+    const user = IsUserInRoom.get(roomId, userId);
+    if (!user) {
+      throw new ApiError(403, "User is not a participant of this room, Access restricted");
+    }
     const fileData = getAllSharedFiles(roomId);
     const participants = getAllParticipants(roomId);
+
+    deleteExpiredFileEntries();
+
     return res
       .status(200)
       .json(
@@ -106,8 +118,30 @@ const fetchSharedFilesAndRoomParticipants = asyncHandler(async (req, res) => {
       );
   } catch (error) {
     console.log("Failed to fetch shared files");
+    if (error instanceof ApiError) {
+      throw error;
+    }
     throw new ApiError(401, "Failed to fetch shared files");
   }
 });
+
+const deleteExpiredFileEntries = () => {
+    const deleteFileEntry = db.prepare(
+    "DELETE FROM files WHERE uploaded_at <= datetime('now', '-24 hours')"
+  );
+
+  try {
+    const result = deleteFileEntry.run();
+    if (result.changes === 0) {
+      console.log("Lazy cleanup not needed");
+    }
+    else {
+      console.log(`Cleaned up ${result.changes} expired file records.`);
+    }
+  } catch (error) {
+    console.log("Error while deleting file entry: ", error);
+    throw new ApiError(400, "Error during lazy cleanup of files");
+  }
+}
 
 export { getUploadUrl, getDownloadUrl, updateFilesTable, fetchSharedFilesAndRoomParticipants };
