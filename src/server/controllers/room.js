@@ -90,6 +90,8 @@ const leaveRoom = asyncHandler(async (req, res) => {
       throw new ApiError(404, "User not found");
     }
 
+    deleteExpiredRooms();
+
     return res
       .status(200)
       .json(new ApiResponse(200, null, "User left room successfully"));
@@ -111,7 +113,7 @@ const deleteExpiredRooms = () => {
       console.log("Lazy cleanup not needed");
     }
     else {
-      console.log("Lazy cleanup of rooms occured");
+      console.log(`Cleaned up ${result.changes} expired rooms.`);
     }
   } catch (error) {
     console.log("Error while deleting room: ", error);

@@ -3,7 +3,7 @@ import { getUploadUrl, getDownloadUrl, updateFilesTable, fetchSharedFilesAndRoom
 
 const router = Router();
 
-router.get("/data/:roomId", fetchSharedFilesAndRoomParticipants);
+router.get("/data/:roomId/:userId", fetchSharedFilesAndRoomParticipants);
 router.post("/upload", getUploadUrl);
 router.get("/download", getDownloadUrl);
 router.post("/update", updateFilesTable)

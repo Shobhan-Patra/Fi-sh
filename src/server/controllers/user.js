@@ -64,6 +64,8 @@ const getRoomId = asyncHandler(async (req, res) => {
 
     console.log(result);
 
+    deleteExpiredUsers();
+
     return res
       .status(200)
       .json(
