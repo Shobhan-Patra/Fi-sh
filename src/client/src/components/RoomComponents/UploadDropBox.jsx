@@ -1,11 +1,11 @@
-import { Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import { Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
 
-export default function UploadDropBox ({ handleFiles }) {
-    const [dragActive, setDragActive] = useState(false);
-    const fileInputRef = useRef(null);
+export default function UploadDropBox({ handleFiles }) {
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef(null);
 
-    const handleDrop = (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -13,15 +13,16 @@ export default function UploadDropBox ({ handleFiles }) {
       handleFiles(e.dataTransfer.files);
     }
   };
-    
-    return (<>
-        <div className="w-full max-w-3xl mb-16">
+
+  return (
+    <>
+      <div className="w-full max-w-3xl mb-16">
         <div
           className={`border-2 border-dashed rounded-2xl p-12 text-center transition cursor-pointer
             ${
               dragActive
-              ? "border-indigo-400 bg-gray-800"
-              : "border-gray-500 bg-gray-900"
+                ? 'border-indigo-400 bg-gray-800'
+                : 'border-gray-500 bg-gray-900'
             }`}
           onDragEnter={() => setDragActive(true)}
           onDragOver={(e) => e.preventDefault()}
@@ -46,6 +47,6 @@ export default function UploadDropBox ({ handleFiles }) {
         onChange={(e) => handleFiles(e.target.files)}
         className="hidden"
       />
-      </>
-    );
+    </>
+  );
 }

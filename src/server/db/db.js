@@ -1,4 +1,4 @@
-import Database from "better-sqlite3";
+import Database from 'better-sqlite3';
 
 const DB_FILE = process.env.DB_FILE;
 

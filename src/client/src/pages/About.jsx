@@ -1,4 +1,4 @@
-import { Zap, ShieldCheck, Rabbit } from "lucide-react";
+import { Zap, ShieldCheck, Rabbit } from 'lucide-react';
 
 export default function About() {
   return (
@@ -21,7 +21,8 @@ export default function About() {
             <Rabbit className="mx-auto text-indigo-400 mb-4" size={40} />
             <h3 className="text-2xl font-bold text-white">Our Goal</h3>
             <p className="mt-2 text-gray-400">
-              To create the easiest way to share files, period. No sign-ups, no ads, no nonsense. Just a simple tool that works when you need it.
+              To create the easiest way to share files, period. No sign-ups, no
+              ads, no nonsense. Just a simple tool that works when you need it.
             </p>
           </div>
 
@@ -30,21 +31,26 @@ export default function About() {
             <ShieldCheck className="mx-auto text-indigo-400 mb-4" size={40} />
             <h3 className="text-2xl font-bold text-white">Our Approach</h3>
             <p className="mt-2 text-gray-400">
-              I believe in privacy. Your files live in a temporary room for 24 hours and are then permanently deleted. It's a digital "catch and release."
+              I believe in privacy. Your files live in a temporary room for 24
+              hours and are then permanently deleted. It's a digital "catch and
+              release."
             </p>
           </div>
         </div>
 
         {/* The "Why" Section */}
         <div className="mt-16 max-w-3xl mx-auto text-center">
-            <h3 className="text-2xl font-bold text-white">Why did I build this?</h3>
-            <p className="mt-4 text-lg text-gray-400">
-                Honestly? I was just tired of our files getting compressed by messenger apps or having to log into clunky cloud storage. I wanted a space to just drop a file, grab a link, and get on with my day. So, I built Fi-sh.
-            </p>
+          <h3 className="text-2xl font-bold text-white">
+            Why did I build this?
+          </h3>
+          <p className="mt-4 text-lg text-gray-400">
+            Honestly? I was just tired of our files getting compressed by
+            messenger apps or having to log into clunky cloud storage. I wanted
+            a space to just drop a file, grab a link, and get on with my day.
+            So, I built Fi-sh.
+          </p>
         </div>
-
       </div>
     </div>
   );
 }
-

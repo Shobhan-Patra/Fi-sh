@@ -1,23 +1,23 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 export default function JoinRoom({ onJoinRoom }) {
   const location = useLocation();
-  const [roomId, setRoomId] = useState(location.state?.roomId || "");
+  const [roomId, setRoomId] = useState(location.state?.roomId || '');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async () => {
     if (roomId.length !== 6) {
-      setError("Please enter a valid Room Id");
+      setError('Please enter a valid Room Id');
       return;
     }
     setIsLoading(true);
-    setError("");
+    setError('');
     try {
       await onJoinRoom(roomId);
     } catch (error) {
-      setError("Failed to join room. Please check the ID.");
+      setError('Failed to join room. Please check the ID.');
       console.log(error);
     } finally {
       setIsLoading(false);
@@ -50,7 +50,7 @@ export default function JoinRoom({ onJoinRoom }) {
             disabled={isLoading}
             className="px-8 py-4 bg-indigo-500 text-white rounded-xl text-lg font-medium hover:bg-indigo-600 shadow-lg transition disabled:bg-gray-500 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Joining..." : "Join"}
+            {isLoading ? 'Joining...' : 'Join'}
           </button>
         </div>
         {error && <p className="text-red-400 mt-4">{error}</p>}

@@ -1,4 +1,4 @@
-import { Download } from "lucide-react";
+import { Download } from 'lucide-react';
 
 function UploadingFileItem({ file }) {
   return (
@@ -9,7 +9,7 @@ function UploadingFileItem({ file }) {
       </div>
       {/* The visual progress bar */}
       <div className="w-full bg-gray-700 rounded-full h-2">
-        <div 
+        <div
           className="bg-indigo-500 h-2 rounded-full transition-all duration-150"
           style={{ width: `${file.progress}%` }}
         ></div>
@@ -19,7 +19,7 @@ function UploadingFileItem({ file }) {
 }
 
 export default function SharedFiles({ sharedFiles, uploadingFiles }) {
-  console.log("Files inside sharedFiles component: ", sharedFiles);
+  console.log('Files inside sharedFiles component: ', sharedFiles);
 
   if (!Array.isArray(sharedFiles) || sharedFiles.length === 0) {
     return (
@@ -45,23 +45,24 @@ export default function SharedFiles({ sharedFiles, uploadingFiles }) {
 
         {sharedFiles.map((file) => (
           <div
-          key={file.id}
-          className="flex justify-between items-center bg-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition"
+            key={file.id}
+            className="flex justify-between items-center bg-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition"
           >
             <div>
               <p className="font-medium">{file.file_name}</p>
               <p className="text-sm text-gray-400">
-                {file.file_size} • Uploaded at {new Date(file.uploaded_at + "Z").toLocaleString()}
+                {file.file_size} • Uploaded at{' '}
+                {new Date(file.uploaded_at + 'Z').toLocaleString()}
               </p>
             </div>
             <a
               href={file.storage_url}
               className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
-              >
+            >
               <Download size={18} />
               <span>Download</span>
             </a>
-              {console.log("File inside the element: ", file)}
+            {console.log('File inside the element: ', file)}
           </div>
         ))}
       </div>

@@ -1,8 +1,8 @@
 // ErrorHandler.js
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from '../utils/ApiError.js';
 
 const ErrorHandler = (err, req, res, next) => {
-  console.log("Middleware Error Handling");
+  console.log('Middleware Error Handling');
 
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
@@ -12,11 +12,11 @@ const ErrorHandler = (err, req, res, next) => {
     });
   }
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     console.error(err.stack);
     return res.status(500).json({
       success: false,
-      message: err.message || "Internal Server Error",
+      message: err.message || 'Internal Server Error',
       stack: err.stack,
     });
   }
@@ -24,7 +24,7 @@ const ErrorHandler = (err, req, res, next) => {
   // fallback for unhandled errors in production
   return res.status(500).json({
     success: false,
-    message: "Something went wrong",
+    message: 'Something went wrong',
   });
 };
 

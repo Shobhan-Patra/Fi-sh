@@ -1,13 +1,13 @@
-import axios from "axios";
-import { filesize } from "filesize";
-import CardParticipantsList from "../components/RoomComponents/ParticipantsList";
-import UploadDropBox from "../components/RoomComponents/UploadDropBox";
-import SharedFiles from "../components/RoomComponents/SharedFiles";
-import RoomId from "../components/RoomComponents/RoomId";
-import getDownloadUrl from "../utils/getDownloadUrl.js";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import axios from 'axios';
+import { filesize } from 'filesize';
+import CardParticipantsList from '../components/RoomComponents/ParticipantsList';
+import UploadDropBox from '../components/RoomComponents/UploadDropBox';
+import SharedFiles from '../components/RoomComponents/SharedFiles';
+import RoomId from '../components/RoomComponents/RoomId';
+import getDownloadUrl from '../utils/getDownloadUrl.js';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 export default function Room({ currentUser }) {
   // const [roomId, setRoomId] = useState("");
@@ -18,24 +18,25 @@ export default function Room({ currentUser }) {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
-
   useEffect(() => {
     console.log(currentUser);
     if (!roomId) {
       return;
     }
-    if (!sessionStorage.getItem("user")) {
-      console.log("No saved user found, redirecting to join room page");
-      navigate('/join-room', { 
+    if (!sessionStorage.getItem('user')) {
+      console.log('No saved user found, redirecting to join room page');
+      navigate('/join-room', {
         replace: true, // Replaces the history entry, so the user can't click "back" into this redirect loop.
-        state: { roomId: roomId }
+        state: { roomId: roomId },
       });
     }
     const getAllData = async () => {
       try {
         setIsLoading(true);
         // const result = await axios.get(`/api/file/data/${roomId}`);
-        const result = await axios.get(`/api/file/data/${roomId}/${currentUser.id}`);
+        const result = await axios.get(
+          `/api/file/data/${roomId}/${currentUser.id}`
+        );
         setSharedFiles(result.data.data.fileData);
         setRoomParticipants(result.data.data.participants);
       } catch (error) {
@@ -55,7 +56,7 @@ export default function Room({ currentUser }) {
       filename: file.name,
       fileSize: filesize(parseInt(file.size)),
       contentType: file.type,
-      downloadUrl: "",
+      downloadUrl: '',
     };
 
     const uploadId = `${file.name}-${file.lastModified}`;
@@ -65,23 +66,23 @@ export default function Room({ currentUser }) {
     ]);
 
     // Get upload URL
-    const { data } = await axios.post("/api/file/upload", {
+    const { data } = await axios.post('/api/file/upload', {
       filename: fileData.filename,
       contentType: fileData.contentType,
     });
-    console.log("Data: ", data);
+    console.log('Data: ', data);
 
     const signedUploadUrl = data.data.signedUploadUrl;
     const key = data.data.key;
 
     try {
-      if (!signedUploadUrl) throw new Error("Error fetching upload Url");
+      if (!signedUploadUrl) throw new Error('Error fetching upload Url');
 
       // Upload the file on the fetched URL
       const uploadResult = await axios.put(signedUploadUrl, file, {
         headers: {
-          "Content-Type": file.type,
-          "Content-Disposition": "attachment",
+          'Content-Type': file.type,
+          'Content-Disposition': 'attachment',
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
@@ -94,18 +95,18 @@ export default function Room({ currentUser }) {
           );
         },
       });
-      console.log("Upload successful: ", uploadResult);
+      console.log('Upload successful: ', uploadResult);
 
       // update local fileData
       fileData.downloadUrl = await getDownloadUrl(key, fileData.filename);
 
       // update files table
-      await axios.post("/api/file/update", fileData);
+      await axios.post('/api/file/update', fileData);
 
       // Update Shared files list
       // const files = await axios.get(`/api/file/all/${roomId}`);
       const files = await axios.get(`/api/file/data/${roomId}`);
-      console.log("Files before updating state: ", files);
+      console.log('Files before updating state: ', files);
       setSharedFiles(files.data.data.fileData);
       setRoomParticipants(files.data.data.participants);
     } catch (error) {
@@ -116,7 +117,7 @@ export default function Room({ currentUser }) {
   }
 
   const handleFiles = (files) => {
-    console.log("Selected files:", files);
+    console.log('Selected files:', files);
     Array.from(files).forEach((file) => {
       uploadFile(file);
     });

@@ -1,5 +1,5 @@
-import { Upload } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Upload } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   return (
@@ -14,10 +14,7 @@ export default function Hero() {
           Upload and share files securely with just a link. No signup required,
           no hassle — just fast, reliable transfers.
         </p>
-        <Link
-          to="/create-room"
-          className=""
-        >
+        <Link to="/create-room" className="">
           <button className="mt-6 px-6 py-3 bg-indigo-500 text-white font-semibold rounded-xl shadow hover:bg-indigo-600 transition flex items-center gap-2">
             <Upload size={20} />
             Upload Your File

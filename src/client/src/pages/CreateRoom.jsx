@@ -6,11 +6,12 @@ export default function CreateRoom({ onCreateRoom }) {
         Generate a private room to start sharing files. Each room gets a unique
         link you can share securely.
       </p>
-        <button 
-          className="mt-8 px-8 py-4 bg-indigo-500 text-white rounded-xl text-lg font-medium hover:bg-indigo-600 shadow-lg transition"
-          onClick={onCreateRoom}>
-          Generate Room Link
-        </button>
+      <button
+        className="mt-8 px-8 py-4 bg-indigo-500 text-white rounded-xl text-lg font-medium hover:bg-indigo-600 shadow-lg transition"
+        onClick={onCreateRoom}
+      >
+        Generate Room Link
+      </button>
     </div>
   );
 }

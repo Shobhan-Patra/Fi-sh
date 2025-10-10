@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -8,9 +8,15 @@ export default function Footer() {
           © {new Date().getFullYear()} Fi-sh. <br></br>All rights reserved.
         </p>
         <div className="flex space-x-4">
-          <Link to="/privacy-policy" className="hover:text-white transition">Privacy</Link>
-          <Link to="/terms-of-service" className="hover:text-white transition">Terms</Link>
-          <Link to="/support" className="hover:text-white transition">Support</Link>
+          <Link to="/privacy-policy" className="hover:text-white transition">
+            Privacy
+          </Link>
+          <Link to="/terms-of-service" className="hover:text-white transition">
+            Terms
+          </Link>
+          <Link to="/support" className="hover:text-white transition">
+            Support
+          </Link>
         </div>
       </div>
     </footer>

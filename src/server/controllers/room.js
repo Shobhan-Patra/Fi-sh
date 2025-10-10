@@ -1,8 +1,8 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
-import { generateRoomId } from "../utils/helperFunctions.js";
-import db from "../db/db.js";
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
+import { ApiError } from '../utils/ApiError.js';
+import { generateRoomId } from '../utils/helperFunctions.js';
+import db from '../db/db.js';
 
 const createRoom = asyncHandler(async (req, res) => {
   const roomId = generateRoomId();
@@ -11,16 +11,16 @@ const createRoom = asyncHandler(async (req, res) => {
   const insertRoom = db.prepare(
     "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))"
   );
-  const updateUser = db.prepare("UPDATE users SET room_id = ? WHERE id = ?");
+  const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
 
   try {
     const insertRoomResult = insertRoom.run(roomId, userId);
     const user = updateUser.run(roomId, userId);
     if (user.changes === 0) {
-      throw new ApiError(400, "User is already in a room");
+      throw new ApiError(400, 'User is already in a room');
     }
     if (insertRoomResult.changes === 0) {
-      throw new Error("Failed to create new Room");
+      throw new Error('Failed to create new Room');
     }
 
     // const participants = getAllParticipants(roomId);
@@ -35,12 +35,12 @@ const createRoom = asyncHandler(async (req, res) => {
           // fileData: [],
           // participants: participants,
         },
-        "Room created successfully"
+        'Room created successfully'
       )
     );
   } catch (error) {
-    console.log("Error creating room: ", error);
-    throw new ApiError(400, "DB error");
+    console.log('Error creating room: ', error);
+    throw new ApiError(400, 'DB error');
   }
 });
 
@@ -50,10 +50,10 @@ const joinRoom = asyncHandler(async (req, res) => {
   console.log(roomId, userId);
 
   try {
-    const updateUser = db.prepare("UPDATE users SET room_id = ? WHERE id = ?");
+    const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
     const user = updateUser.run(roomId, userId);
     if (user.changes === 0) {
-      throw new ApiError(400, "User is already in a room");
+      throw new ApiError(400, 'User is already in a room');
     }
 
     // const fileData = getAllSharedFiles(roomId);
@@ -61,19 +61,17 @@ const joinRoom = asyncHandler(async (req, res) => {
 
     deleteExpiredRooms();
 
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          // { fileData, participants },
-          {},
-          "User joined room successfully and files fetched successfully"
-        )
-      );
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        // { fileData, participants },
+        {},
+        'User joined room successfully and files fetched successfully'
+      )
+    );
   } catch (error) {
-    console.log("Error joining room: ", error);
-    throw new ApiError(400, "User DB error");
+    console.log('Error joining room: ', error);
+    throw new ApiError(400, 'User DB error');
   }
 });
 
@@ -81,23 +79,23 @@ const leaveRoom = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
 
   const removeRoomId = db.prepare(
-    "UPDATE users SET room_id = NULL WHERE id = ?"
+    'UPDATE users SET room_id = NULL WHERE id = ?'
   );
 
   try {
     const result = removeRoomId.run(userId);
     if (result.changes === 0) {
-      throw new ApiError(404, "User not found");
+      throw new ApiError(404, 'User not found');
     }
 
     deleteExpiredRooms();
 
     return res
       .status(200)
-      .json(new ApiResponse(200, null, "User left room successfully"));
+      .json(new ApiResponse(200, null, 'User left room successfully'));
   } catch (error) {
-    console.log("Error leaving room: ", error);
-    throw new ApiError(400, "Error leaving room");
+    console.log('Error leaving room: ', error);
+    throw new ApiError(400, 'Error leaving room');
   }
 });
 
@@ -110,14 +108,13 @@ const deleteExpiredRooms = () => {
   try {
     const result = deleteRoom.run();
     if (result.changes === 0) {
-      console.log("Lazy cleanup not needed");
-    }
-    else {
+      console.log('Lazy cleanup not needed');
+    } else {
       console.log(`Cleaned up ${result.changes} expired rooms.`);
     }
   } catch (error) {
-    console.log("Error while deleting room: ", error);
-    throw new ApiError(400, "DB error");
+    console.log('Error while deleting room: ', error);
+    throw new ApiError(400, 'DB error');
   }
 };
 

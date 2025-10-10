@@ -3,7 +3,8 @@ export default function Contact() {
     <div className="max-w-4xl mx-auto px-6 py-20 text-gray-100">
       <h2 className="text-4xl font-bold text-indigo-400">Contact Us</h2>
       <p className="mt-4 text-gray-300">
-        We’d love to hear from you! Share feedback, feature requests, or bug reports.
+        We’d love to hear from you! Share feedback, feature requests, or bug
+        reports.
       </p>
 
       <form className="mt-8 grid gap-6">

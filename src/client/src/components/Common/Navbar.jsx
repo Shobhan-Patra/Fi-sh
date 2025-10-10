@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Plus,
   LogIn,
@@ -7,11 +7,11 @@ import {
   X,
   Menu,
   CircleArrowOutUpRight,
-} from "lucide-react"; // Import Menu and X icons
-import { Link } from "react-router-dom";
-import fishLogo from "../../assets/nav-icon.png";
-import UserNavbar from "./userCorner";
-import axios from "axios";
+} from 'lucide-react'; // Import Menu and X icons
+import { Link } from 'react-router-dom';
+import fishLogo from '../../assets/nav-icon.png';
+import UserNavbar from './userCorner';
+import axios from 'axios';
 
 export default function Navbar({ user, onLeaveRoom }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function Navbar({ user, onLeaveRoom }) {
       const result = await axios.get(`/api/user/current-room/${user.id}`);
 
       if (!result || result.length === 0) {
-        throw new Error("Failed to go back to room");
+        throw new Error('Failed to go back to room');
       }
 
       console.log(result);
@@ -75,7 +75,7 @@ export default function Navbar({ user, onLeaveRoom }) {
           {/* Show Join Room or User Info based on user state */}
           {user ? (
             <>
-              {location.pathname.startsWith("/room") ? (
+              {location.pathname.startsWith('/room') ? (
                 <button
                   onClick={() => onLeaveRoom(user.id)}
                   className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-red-600 text-white font-medium shadow-md hover:bg-red-700 transition"
@@ -150,7 +150,7 @@ export default function Navbar({ user, onLeaveRoom }) {
             </Link>
             {user ? (
               <>
-                {location.pathname.startsWith("/room") ? (
+                {location.pathname.startsWith('/room') ? (
                   <button
                     onClick={() => onLeaveRoom(user.id)}
                     className="flex items-center justify-center space-x-2 px-4 py-2 rounded-xl bg-red-600 text-white font-medium shadow-md hover:bg-indigo-600 transition"

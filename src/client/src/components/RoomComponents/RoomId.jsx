@@ -8,13 +8,15 @@ export default function RoomId({ roomId }) {
   //     setRoomId(savedRoomId);
   //   }
   // }, []);
-  
+
   console.log(roomId);
 
   if (!roomId) {
     return (
       <div className="mb-12 text-center animate-pulse">
-        <h2 className="text-3xl font-extrabold text-indigo-400 mb-4">Room ID</h2>
+        <h2 className="text-3xl font-extrabold text-indigo-400 mb-4">
+          Room ID
+        </h2>
         <code className="text-3xl bg-gray-700 px-6 py-3 rounded-xl shadow-lg">
           LOADING...
         </code>
@@ -22,7 +24,7 @@ export default function RoomId({ roomId }) {
       </div>
     );
   }
-  
+
   return (
     <div className="mb-12 text-center">
       <h2 className="text-3xl font-extrabold text-indigo-400 mb-4">Room ID</h2>
