@@ -35,7 +35,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (location.pathname.startsWith("/refresh-session/")) {
+    if (location.pathname.startsWith("/refresh-session")) {
       console.log("Clearing session.");
       sessionStorage.clear();
     }
@@ -94,13 +94,14 @@ function App() {
 
   const handleLeaveRoomClick = async (userId) => {
     try {
+      console.log("Leave room clicked");
       const result = await axios.post(`/api/room/leave/${userId}`, {});
       console.log(result);
-      setUser(null);
-      sessionStorage.removeItem("user");
     } catch (error) {
       console.log(error);
     } finally {
+      setUser(null);
+      sessionStorage.removeItem("user");
       navigate("/");
     }
   };
@@ -123,7 +124,7 @@ function App() {
             element={<JoinRoom onJoinRoom={handleJoinRoom} />}
           />
           <Route path="/room" element={<Room />} />
-          <Route path="/room/:roomId" element={<Room currentUser={user} />} />
+          <Route path="/room/:roomId" element={<Room currentUser={user} ensureUserExists={ensureUserExists}/>} />
 
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />

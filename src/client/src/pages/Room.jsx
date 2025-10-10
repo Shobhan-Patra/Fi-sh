@@ -18,7 +18,7 @@ export default function Room({ currentUser }) {
   const { roomId } = useParams();
 
   useEffect(() => {
-    if (!roomId) {
+    if (!roomId || !currentUser) {
       return;
     }
     const getAllData = async () => {
@@ -36,7 +36,7 @@ export default function Room({ currentUser }) {
       }
     };
     getAllData();
-  }, [roomId]);
+  }, [roomId, currentUser]);
 
   async function uploadFile(file) {
     const fileData = {

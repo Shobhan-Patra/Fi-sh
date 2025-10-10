@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import fs from "fs";
 import path from "path";
 import ErrorHandler from "./middlewares/errorHandling.js";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 const app = express();
@@ -15,6 +16,13 @@ const logStream = fs.createWriteStream(path.join(process.cwd(), "access.log"), {
 });
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100,
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false,
+  message: { message: "Too many requests from this IP, please try again after 15 minutes" },
+});
 
 // -------- Middleware packages --------
 app.use(cookieParser());
@@ -25,6 +33,7 @@ if (process.env.NODE_ENV === "production")
 // For request logging to file
 else app.use(morgan("dev")); // For request logging to console
 app.use(helmet()); // For additional security headers
+app.use('/api', limiter);
 app.use(cors({ origin: FRONTEND_URL, credentials: true })); // Restrict requests to frontend
 
 //  -------- Routers -------

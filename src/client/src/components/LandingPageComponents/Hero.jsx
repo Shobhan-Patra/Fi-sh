@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
-    <section className="flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto px-6 py-16 gap-12">
+    <section className="flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto px-6 py-12 gap-12">
       {/* Left */}
       <div className="flex-1 text-gray-100">
         <h2 className="text-4xl md:text-5xl font-extrabold leading-tight">
-          Share files instantly, <br />
-          <span className="text-indigo-400">without limits.</span>
+          Create a room, <br />
+          <span className="text-indigo-400">Not an account.</span>
         </h2>
         <p className="mt-4 text-lg text-gray-300">
           Upload and share files securely with just a link. No signup required,

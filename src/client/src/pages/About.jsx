@@ -1,29 +1,50 @@
+import { Zap, ShieldCheck, Rabbit } from "lucide-react";
+
 export default function About() {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-20 text-gray-100">
-      <h2 className="text-4xl font-bold text-indigo-400">About Fi-sh</h2>
-      <p className="mt-6 text-lg text-gray-300 leading-relaxed">
-        Fi-sh was created to make file sharing simple, fast, and fun.
-        No more emailing files or slow messengers — create a room, drop your files,
-        and instantly share them with a unique link.
-      </p>
+    <div className="bg-gray-900 text-gray-300">
+      <div className="max-w-5xl mx-auto px-6 py-20">
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-extrabold text-white sm:text-5xl tracking-tight">
+            About Fi-sh
+          </h1>
+          <p className="mt-4 text-xl text-gray-400">
+            File sharing should be simple. I built this to prove it.
+          </p>
+        </div>
 
-      <div className="mt-12 grid md:grid-cols-2 gap-10">
-        <div className="p-6 bg-gray-800 rounded-xl shadow">
-          <h3 className="text-xl font-semibold text-indigo-400">🎯 Our Mission</h3>
-          <p className="mt-3 text-gray-300">
-            To simplify file transfers with a lightweight, secure, and enjoyable tool —
-            no clutter, no barriers.
-          </p>
+        {/* Core Principles Section */}
+        <div className="grid md:grid-cols-2 gap-8 text-center">
+          {/* Our Goal */}
+          <div className="bg-gray-800 p-8 rounded-2xl shadow-lg">
+            <Rabbit className="mx-auto text-indigo-400 mb-4" size={40} />
+            <h3 className="text-2xl font-bold text-white">Our Goal</h3>
+            <p className="mt-2 text-gray-400">
+              To create the easiest way to share files, period. No sign-ups, no ads, no nonsense. Just a simple tool that works when you need it.
+            </p>
+          </div>
+
+          {/* Our Approach */}
+          <div className="bg-gray-800 p-8 rounded-2xl shadow-lg">
+            <ShieldCheck className="mx-auto text-indigo-400 mb-4" size={40} />
+            <h3 className="text-2xl font-bold text-white">Our Approach</h3>
+            <p className="mt-2 text-gray-400">
+              I believe in privacy. Your files live in a temporary room for 24 hours and are then permanently deleted. It's a digital "catch and release."
+            </p>
+          </div>
         </div>
-        <div className="p-6 bg-gray-800 rounded-xl shadow">
-          <h3 className="text-xl font-semibold text-indigo-400">🌍 Our Vision</h3>
-          <p className="mt-3 text-gray-300">
-            A future where sharing files is as easy as sending a text —
-            no logins, no hassle, just click and share.
-          </p>
+
+        {/* The "Why" Section */}
+        <div className="mt-16 max-w-3xl mx-auto text-center">
+            <h3 className="text-2xl font-bold text-white">Why did I build this?</h3>
+            <p className="mt-4 text-lg text-gray-400">
+                Honestly? I was just tired of our files getting compressed by messenger apps or having to log into clunky cloud storage. I wanted a space to just drop a file, grab a link, and get on with our day. So, I built Fi-sh.
+            </p>
         </div>
+
       </div>
     </div>
   );
 }
+
