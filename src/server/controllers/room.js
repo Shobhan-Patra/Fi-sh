@@ -29,7 +29,7 @@ const createRoom = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         {
-          roomId
+          roomId,
         },
         'Room created successfully'
       )
@@ -53,13 +53,15 @@ const joinRoom = asyncHandler(async (req, res) => {
 
     deleteExpiredRooms();
 
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        {},
-        'User joined room successfully and files fetched successfully'
-      )
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          {},
+          'User joined room successfully and files fetched successfully'
+        )
+      );
   } catch (error) {
     console.log('Error joining room: ', error);
     throw new ApiError(400, 'User DB error');

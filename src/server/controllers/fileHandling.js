@@ -12,6 +12,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { ApiError } from '../utils/ApiError.js';
 
+const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100MB
+
 function generateR2Key(fileName) {
   const extName = path.extname(fileName);
   const uniqueId = uuidv4();
@@ -19,8 +21,15 @@ function generateR2Key(fileName) {
 }
 
 const getUploadUrl = asyncHandler(async (req, res) => {
-  const { filename, contentType } = req.body;
+  const { filename, filesize, contentType } = req.body;
   const key = generateR2Key(filename);
+
+  if (filesize > MAX_FILE_SIZE_BYTES) {
+    throw new ApiError(
+      413,
+      `File is larger than Maximum allowed file size: ${MAX_FILE_SIZE_BYTES}`
+    );
+  }
 
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME,
@@ -88,11 +97,16 @@ const updateFilesTable = asyncHandler(async (req, res) => {
       throw new Error('No changes made');
     }
 
+    const getNewFile = db.prepare('SELECT * FROM files WHERE id = ?');
+    const newFileRow = getNewFile.get(fileId);
+
     deleteExpiredFileEntries();
 
     return res
       .status(200)
-      .json(new ApiResponse(200, null, 'Files table updated successfully'));
+      .json(
+        new ApiResponse(200, newFileRow, 'Files table updated successfully')
+      );
   } catch (error) {
     console.log('Error while saving file metadata: ', error);
     throw new ApiError(400, 'Error while saving file metadata');

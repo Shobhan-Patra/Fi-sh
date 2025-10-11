@@ -7,7 +7,10 @@ import RoomId from '../components/RoomComponents/RoomId';
 import getDownloadUrl from '../utils/getDownloadUrl.js';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import ErrorToast from '../components/Common/ErrorToast.jsx';
+
+const MAX_SIZE_FILE_LIMIT = 100 * 1024 * 1024; // 100MB
 
 export default function Room({ currentUser }) {
   const [sharedFiles, setSharedFiles] = useState([]);
@@ -19,12 +22,12 @@ export default function Room({ currentUser }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // console.log(currentUser);
+    console.log(currentUser);
     if (!roomId) {
       return;
     }
     if (!sessionStorage.getItem('user')) {
-      // console.log('No saved user found, redirecting to join room page');
+      console.log('No saved user found, redirecting to join room page');
       navigate('/join-room', {
         replace: true, // Replaces the history entry, so the user can't click "back" into this redirect loop.
         state: { roomId: roomId },
@@ -32,6 +35,7 @@ export default function Room({ currentUser }) {
     }
     const getAllData = async () => {
       try {
+        setError('');
         setIsLoading(true);
         const result = await axios.get(
           `/api/file/data/${roomId}/${currentUser.id}`
@@ -68,12 +72,12 @@ export default function Room({ currentUser }) {
     // Get upload URL
     const { data } = await axios.post('/api/file/upload', {
       filename: fileData.filename,
+      filesize: fileData.fileSize,
       contentType: fileData.contentType,
     });
 
     const signedUploadUrl = data.data.signedUploadUrl;
     const key = data.data.key;
-
     try {
       if (!signedUploadUrl) throw new Error('Error fetching upload Url');
 
@@ -99,12 +103,11 @@ export default function Room({ currentUser }) {
       fileData.downloadUrl = await getDownloadUrl(key, fileData.filename);
 
       // update files table
-      await axios.post('/api/file/update', fileData);
+      const { data } = await axios.post('/api/file/update', fileData);
+      console.log(data);
 
-      // Update Shared files list
-      const files = await axios.get(`/api/file/data/${roomId}`);
-      setSharedFiles(files.data.data.fileData);
-      setRoomParticipants(files.data.data.participants);
+      // Update sharedFiles after uploading a file
+      setSharedFiles((prevFiles) => [...prevFiles, data.data]);
     } catch (error) {
       setError('Error uploading file, Please retry later');
       console.log(error);
@@ -121,10 +124,31 @@ export default function Room({ currentUser }) {
   }
 
   const handleFiles = (files) => {
-    // console.log('Selected files:', files);
+    setError('');
+
+    const validFiles = [];
+    const oversizedFiles = [];
+
     Array.from(files).forEach((file) => {
-      uploadFile(file);
+      if (file.size > MAX_SIZE_FILE_LIMIT) {
+        oversizedFiles.push(file);
+      } else {
+        validFiles.push(file);
+      }
     });
+
+    if (oversizedFiles.length > 0) {
+      const oversizedFileNames = oversizedFiles.map((f) => f.name).join(', ');
+      setError(
+        `The following files are too large (max 100 MB): ${oversizedFileNames}`
+      );
+    }
+
+    if (validFiles.length > 0) {
+      validFiles.forEach((file) => {
+        uploadFile(file);
+      });
+    }
   };
 
   if (isLoading) {
@@ -139,20 +163,11 @@ export default function Room({ currentUser }) {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-red-400">
-        <AlertTriangle className="h-12 w-12 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
-        <p className="text-lg">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <section className="min-h-screen flex flex-col items-center bg-gray-900 text-white px-6 py-12">
       <RoomId roomId={roomId} />
       <UploadDropBox handleFiles={handleFiles} />
+      <ErrorToast message={error} onClose={() => setError(null)} />
       <SharedFiles sharedFiles={sharedFiles} uploadingFiles={uploadingFiles} />
       <CardParticipantsList
         participants={roomParticipants}
