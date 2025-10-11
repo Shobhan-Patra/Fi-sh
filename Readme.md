@@ -1,1 +1,1 @@
-A simple hassle free File-Sharing (Fi-sh) site with private rooms
+A simple hassle free File-Sharing site with private rooms

@@ -7,7 +7,7 @@ export default function About() {
         {/* Header Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-white sm:text-5xl tracking-tight">
-            About Fi-sh
+            About SnipShare
           </h1>
           <p className="mt-4 text-xl text-gray-400">
             File sharing should be simple. I built this to prove it.
@@ -47,7 +47,7 @@ export default function About() {
             Honestly? I was just tired of our files getting compressed by
             messenger apps or having to log into clunky cloud storage. I wanted
             a space to just drop a file, grab a link, and get on with my day.
-            So, I built Fi-sh.
+            So, I built SnipShare.
           </p>
         </div>
       </div>

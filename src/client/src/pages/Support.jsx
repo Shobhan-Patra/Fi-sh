@@ -12,7 +12,7 @@ export default function Support() {
 
       <div className="mt-12">
         <a
-          href="mailto:support@fi-sh-app.com"
+          href="mailto:support@SnipShare-app.com"
           className="inline-flex items-center justify-center space-x-3 px-6 py-3 border border-transparent text-lg font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition"
         >
           <Mail size={20} />

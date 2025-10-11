@@ -7,8 +7,8 @@ export default function TermsOfService() {
 
       <div className="space-y-6">
         <p>
-          Welcome to Fi-sh! By using our service ("Service"), you agree to be
-          bound by these Terms of Service ("Terms").
+          Welcome to SnipShare! By using our service ("Service"), you agree to be
+          bound by these Terms of Service.
         </p>
 
         <div>
@@ -16,7 +16,7 @@ export default function TermsOfService() {
             1. Use of Service
           </h2>
           <p>
-            Fi-sh is provided as a free, temporary file-sharing utility. You are
+            SnipShare is provided as a free, temporary file-sharing utility. You are
             solely responsible for the content you upload and share through the
             Service.
           </p>
@@ -39,7 +39,7 @@ export default function TermsOfService() {
             3. Limitation of Liability
           </h2>
           <p>
-            In no event shall Fi-sh be liable for any direct, indirect,
+            In no event shall SnipShare be liable for any direct, indirect,
             incidental, or consequential damages, including but not limited to,
             loss of data, arising out of the use or inability to use the
             Service.
