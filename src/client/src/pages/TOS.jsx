@@ -7,8 +7,8 @@ export default function TermsOfService() {
 
       <div className="space-y-6">
         <p>
-          Welcome to SnipShare! By using our service ("Service"), you agree to be
-          bound by these Terms of Service.
+          Welcome to SnipShare! By using our service ("Service"), you agree to
+          be bound by these Terms of Service.
         </p>
 
         <div>
@@ -16,9 +16,9 @@ export default function TermsOfService() {
             1. Use of Service
           </h2>
           <p>
-            SnipShare is provided as a free, temporary file-sharing utility. You are
-            solely responsible for the content you upload and share through the
-            Service.
+            SnipShare is provided as a free, temporary file-sharing utility. You
+            are solely responsible for the content you upload and share through
+            the Service.
           </p>
         </div>
 

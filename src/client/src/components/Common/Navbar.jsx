@@ -34,7 +34,7 @@ export default function Navbar({ user, onLeaveRoom }) {
 
       navigate(`/room/${result.data.data.roomId}`);
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       navigate(`/create-room`);
     }
   };

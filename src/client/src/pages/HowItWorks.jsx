@@ -6,8 +6,8 @@ export default function HowItWorks() {
           How it Works
         </h2>
         <p className="mt-4 text-lg text-gray-300 text-center">
-          Sharing files with SnipShare is quick and effortless. Here’s how you can
-          get started in 4 simple steps:
+          Sharing files with SnipShare is quick and effortless. Here’s how you
+          can get started in 4 simple steps:
         </p>
 
         <div className="mt-12 grid md:grid-cols-2 gap-8">

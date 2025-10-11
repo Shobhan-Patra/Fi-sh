@@ -1,5 +1,6 @@
 import { Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import herologo from '../../assets/hero.png';
 
 export default function Hero() {
   return (
@@ -25,7 +26,7 @@ export default function Hero() {
       {/* Right Illustration */}
       <div className="flex-1">
         <img
-          src="/src/assets/hero.png"
+          src={herologo}
           alt="file upload illustration"
           className="w-full rounded-xl shadow-lg"
         />
