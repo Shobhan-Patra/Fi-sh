@@ -1,0 +1,19 @@
+# Ignore dependencies, these will be installed inside the container
+node_modules
+
+# Ignore local environment variables
+.env
+
+# Ignore git repository files
+.git
+.gitignore
+
+# Ignore log files
+*.log
+access.log
+
+# Ignore npm debug logs
+npm-debug.log*
+
+# Ignore your local SQLite database file if you have one
+*.db

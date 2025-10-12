@@ -8,22 +8,33 @@ const createRoom = asyncHandler(async (req, res) => {
   const roomId = generateRoomId();
   const { userId } = req.body;
 
-  const insertRoom = db.prepare(
-    "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))"
-  );
-  const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
+  // const insertRoom = db.prepare(
+  //   "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))"
+  // );
+  // const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
 
   try {
-    const insertRoomResult = insertRoom.run(roomId, userId);
-    const user = updateUser.run(roomId, userId);
-    if (user.changes === 0) {
+    // const insertRoomResult = insertRoom.run(roomId, userId);
+    // const user = updateUser.run(roomId, userId);
+
+    const insertRoomResult = await db.execute({
+      sql: "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))",
+      args: [roomId, userId],
+    });
+
+    const user = await db.execute({
+      sql: 'UPDATE users SET room_id = ? WHERE id = ?',
+      args: [roomId, userId],
+    });
+
+    if (user.rowsAffected === 0) {
       throw new ApiError(400, 'User is already in a room');
     }
-    if (insertRoomResult.changes === 0) {
+    if (insertRoomResult.rowsAffected === 0) {
       throw new Error('Failed to create new Room');
     }
 
-    deleteExpiredRooms();
+    await deleteExpiredRooms();
 
     return res.status(200).json(
       new ApiResponse(
@@ -45,13 +56,19 @@ const joinRoom = asyncHandler(async (req, res) => {
   const { userId } = req.body;
 
   try {
-    const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
-    const user = updateUser.run(roomId, userId);
-    if (user.changes === 0) {
+    //   const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
+    //   const user = updateUser.run(roomId, userId);
+
+    const user = await db.execute({
+      sql: 'UPDATE users SET room_id = ? WHERE id = ?',
+      args: [roomId, userId],
+    });
+
+    if (user.rowsAffected === 0) {
       throw new ApiError(400, 'User is already in a room');
     }
 
-    deleteExpiredRooms();
+    await deleteExpiredRooms();
 
     return res
       .status(200)
@@ -71,17 +88,23 @@ const joinRoom = asyncHandler(async (req, res) => {
 const leaveRoom = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
 
-  const removeRoomId = db.prepare(
-    'UPDATE users SET room_id = NULL WHERE id = ?'
-  );
+  // const removeRoomId = db.prepare(
+  //   'UPDATE users SET room_id = NULL WHERE id = ?'
+  // );
 
   try {
-    const result = removeRoomId.run(userId);
-    if (result.changes === 0) {
+    // const result = removeRoomId.run(userId);
+
+    const result = await db.execute({
+      sql: 'UPDATE users SET room_id = NULL WHERE id = ?',
+      args: [userId],
+    });
+
+    if (result.rowsAffected === 0) {
       throw new ApiError(404, 'User not found');
     }
 
-    deleteExpiredRooms();
+    await deleteExpiredRooms();
 
     return res
       .status(200)
@@ -93,14 +116,20 @@ const leaveRoom = asyncHandler(async (req, res) => {
 });
 
 // Use lazy-cleanup i.e Delete records only when someone queries rooms table
-const deleteExpiredRooms = () => {
-  const deleteRoom = db.prepare(
-    "DELETE FROM rooms WHERE expires_at <= datetime('now')"
-  );
+const deleteExpiredRooms = async () => {
+  // const deleteRoom = db.prepare(
+  //   "DELETE FROM rooms WHERE expires_at <= datetime('now')"
+  // );
 
   try {
-    const result = deleteRoom.run();
-    if (result.changes !== 0) {
+    // const result = deleteRoom.run();
+
+    const result = await db.execute({
+      sql: "DELETE FROM rooms WHERE expires_at <= datetime('now')",
+      args: [],
+    });
+
+    if (result.rowsAffected !== 0) {
       console.log(`Cleaned up ${result.changes} expired room records.`);
     }
   } catch (error) {

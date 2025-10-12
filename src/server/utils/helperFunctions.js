@@ -49,26 +49,26 @@ export function generateRandomUserName() {
     'Hyena',
     'Wolf',
   ];
-  const fruits = [
-    'Apple',
-    'Banana',
-    'Orange',
-    'Mango',
-    'Peach',
-    'Strawberry',
-    'Guava',
-    'Pear',
-    'Dragonfruit',
-    'Jackfruit',
-    'Cherry',
-    'Watermelon',
-    'Lemon',
-  ];
+  // const fruits = [
+  //   'Apple',
+  //   'Banana',
+  //   'Orange',
+  //   'Mango',
+  //   'Peach',
+  //   'Strawberry',
+  //   'Guava',
+  //   'Pear',
+  //   'Dragonfruit',
+  //   'Jackfruit',
+  //   'Cherry',
+  //   'Watermelon',
+  //   'Lemon',
+  // ];
 
   let username = '';
   username += colors[Math.floor(Math.random() * colors.length)];
   username += ' ' + animals[Math.floor(Math.random() * animals.length)];
-  username += ' ' + fruits[Math.floor(Math.random() * fruits.length)];
+  // username += ' ' + fruits[Math.floor(Math.random() * fruits.length)];
 
   return username;
 }

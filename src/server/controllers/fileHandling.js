@@ -79,28 +79,49 @@ const updateFilesTable = asyncHandler(async (req, res) => {
     req.body;
   const fileId = uuidv4();
 
-  const insertFileData = db.prepare(
-    'INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  );
+  // const insertFileData = db.prepare(
+  //   'INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  // );
 
   try {
-    const result = insertFileData.run(
-      fileId,
-      roomId,
-      userId,
-      filename,
-      fileSize,
-      contentType,
-      downloadUrl
-    );
-    if (result.changes === 0) {
+    // const result = insertFileData.run(
+    // fileId,
+    // roomId,
+    // userId,
+    // filename,
+    // fileSize,
+    // contentType,
+    // downloadUrl
+    // );
+
+    const result = await db.execute({
+      sql: 'INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      args: [
+        fileId,
+        roomId,
+        userId,
+        filename,
+        fileSize,
+        contentType,
+        downloadUrl,
+      ],
+    });
+
+    if (result.rowsAffected === 0) {
       throw new Error('No changes made');
     }
 
-    const getNewFile = db.prepare('SELECT * FROM files WHERE id = ?');
-    const newFileRow = getNewFile.get(fileId);
+    // const getNewFile = db.prepare('SELECT * FROM files WHERE id = ?');
+    // const newFileRow = getNewFile.get(fileId);
 
-    deleteExpiredFileEntries();
+    const FileRowresult = await db.execute({
+      sql: 'SELECT * FROM files WHERE id = ?',
+      args: [fileId],
+    });
+
+    const newFileRow = FileRowresult.rows[0];
+
+    await deleteExpiredFileEntries();
 
     return res
       .status(200)
@@ -116,21 +137,27 @@ const updateFilesTable = asyncHandler(async (req, res) => {
 const fetchSharedFilesAndRoomParticipants = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   const userId = req.params.userId;
-  const IsUserInRoom = db.prepare(
-    'SELECT id FROM users WHERE room_id = (?) AND id = (?)'
-  );
+  // const IsUserInRoom = db.prepare(
+  //   'SELECT id FROM users WHERE room_id = (?) AND id = (?)'
+  // );
   try {
-    const user = IsUserInRoom.get(roomId, userId);
-    if (!user) {
+    // const user = IsUserInRoom.get(roomId, userId);
+
+    const user = await db.execute({
+      sql: 'SELECT id FROM users WHERE room_id = (?) AND id = (?)',
+      args: [roomId, userId],
+    });
+
+    if (!user || user.rows.length === 0) {
       throw new ApiError(
         403,
         'User is not a participant of this room, Access restricted'
       );
     }
-    const fileData = getAllSharedFiles(roomId);
-    const participants = getAllParticipants(roomId);
+    const fileData = await getAllSharedFiles(roomId);
+    const participants = await getAllParticipants(roomId);
 
-    deleteExpiredFileEntries();
+    await deleteExpiredFileEntries();
 
     return res
       .status(200)
@@ -150,15 +177,21 @@ const fetchSharedFilesAndRoomParticipants = asyncHandler(async (req, res) => {
   }
 });
 
-const deleteExpiredFileEntries = () => {
-  const deleteFileEntry = db.prepare(
-    "DELETE FROM files WHERE uploaded_at <= datetime('now', '-24 hours')"
-  );
+const deleteExpiredFileEntries = async () => {
+  // const deleteFileEntry = db.prepare(
+  //   "DELETE FROM files WHERE uploaded_at <= datetime('now', '-24 hours')"
+  // );
 
   try {
-    const result = deleteFileEntry.run();
-    if (result.changes !== 0) {
-      console.log(`Cleaned up ${result.changes} expired file records.`);
+    // const result = deleteFileEntry.run();
+
+    const result = await db.execute({
+      sql: "DELETE FROM files WHERE uploaded_at <= datetime('now', '-24 hours')",
+      args: [],
+    });
+
+    if (result.rowsAffected !== 0 && result.rowsAffected !== undefined) {
+      console.log(`Cleaned up ${result.rowsAffected} expired file records.`);
     }
   } catch (error) {
     console.log('Error while deleting file entry: ', error);
