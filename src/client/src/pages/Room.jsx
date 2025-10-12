@@ -22,35 +22,37 @@ export default function Room({ currentUser }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(currentUser);
+    // console.log(currentUser);
     if (!roomId) {
       return;
     }
     if (!sessionStorage.getItem('user')) {
-      console.log('No saved user found, redirecting to join room page');
+      // console.log('No saved user found, redirecting to join room page');
       navigate('/join-room', {
         replace: true, // Replaces the history entry, so the user can't click "back" into this redirect loop.
         state: { roomId: roomId },
       });
     }
-    const getAllData = async () => {
-      try {
-        setError('');
-        setIsLoading(true);
-        const result = await axios.get(
-          `/api/file/data/${roomId}/${currentUser.id}`
-        );
-        setSharedFiles(result.data.data.fileData);
-        setRoomParticipants(result.data.data.participants);
-      } catch (error) {
-        setError("Couldn't load room data, Please refresh the page");
-        console.log(error);
-        return;
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    getAllData();
+    if (roomId && currentUser) {
+      const getAllData = async () => {
+        try {
+          setError('');
+          setIsLoading(true);
+          const result = await axios.get(
+            `/api/file/data/${roomId}/${currentUser?.id}`
+          );
+          setSharedFiles(result.data.data.fileData);
+          setRoomParticipants(result.data.data.participants);
+        } catch (error) {
+          setError("Couldn't load room data, Please refresh the page");
+          console.log(error);
+          return;
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      getAllData();
+    }
   }, [roomId, currentUser, navigate]);
 
   async function uploadFile(file) {
@@ -91,11 +93,13 @@ export default function Room({ currentUser }) {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
           );
-          setUploadingFiles((prev) =>
-            prev.map((f) =>
+          console.log(uploadingFiles);
+          setUploadingFiles((prev) => {
+            // Use a function-based approach to get the latest state
+            return prev.map((f) =>
               f.id === uploadId ? { ...f, progress: percentCompleted } : f
-            )
-          );
+            );
+          });
         },
       });
 

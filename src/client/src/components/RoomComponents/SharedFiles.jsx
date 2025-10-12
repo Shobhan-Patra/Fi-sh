@@ -5,7 +5,11 @@ function UploadingFileItem({ file }) {
     <div className="bg-gray-800 rounded-xl p-4 space-y-2">
       <div className="flex justify-between items-center text-sm">
         <p className="font-medium text-white truncate">{file.name}</p>
-        <p className="font-semibold text-indigo-300">{file.progress}%</p>
+        <p
+          className={`font-semibold ${file.error ? 'text-red-400' : 'text-indigo-300'}`}
+        >
+          {file.error ? 'Failed' : `${file.progress}%`}
+        </p>
       </div>
       {/* The visual progress bar */}
       <div className="w-full bg-gray-700 rounded-full h-2">
@@ -19,7 +23,7 @@ function UploadingFileItem({ file }) {
 }
 
 export default function SharedFiles({ sharedFiles, uploadingFiles }) {
-  // console.log('Files inside sharedFiles component: ', sharedFiles);
+  console.log('Files inside uploadingFiles : ', uploadingFiles);
 
   if (!Array.isArray(sharedFiles) || sharedFiles.length === 0) {
     return (

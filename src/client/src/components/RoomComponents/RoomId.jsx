@@ -1,16 +1,4 @@
-// import { useEffect, useState } from "react";
-
 export default function RoomId({ roomId }) {
-  // const [roomId, setRoomId] = useState("");
-  // useEffect(() => {
-  //   const savedRoomId = sessionStorage.getItem("roomId");
-  //   if (savedRoomId) {
-  //     setRoomId(savedRoomId);
-  //   }
-  // }, []);
-
-  // console.log(roomId);
-
   if (!roomId) {
     return (
       <div className="mb-12 text-center animate-pulse">

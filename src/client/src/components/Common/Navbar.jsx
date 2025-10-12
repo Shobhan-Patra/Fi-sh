@@ -7,13 +7,14 @@ import {
   X,
   Menu,
   CircleArrowOutUpRight,
+  Loader2,
 } from 'lucide-react'; // Import Menu and X icons
 import { Link } from 'react-router-dom';
 import fishLogo from '../../assets/nav-icon.png';
 import UserNavbar from './userCorner';
 import axios from 'axios';
 
-export default function Navbar({ user, onLeaveRoom }) {
+export default function Navbar({ user, onLeaveRoom, isLoading }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -80,8 +81,21 @@ export default function Navbar({ user, onLeaveRoom }) {
                   onClick={() => onLeaveRoom(user.id)}
                   className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-red-600 text-white font-medium shadow-md hover:bg-red-700 transition"
                 >
-                  <LogOut size={18} />
-                  <span>Leave Room</span>
+                  {isLoading ? (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+                        <span className="font-medium text-gray-300">
+                          Loading...
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <LogOut size={18} />
+                      <span>Leave Room</span>
+                    </>
+                  )}
                 </button>
               ) : (
                 <button
@@ -99,8 +113,21 @@ export default function Navbar({ user, onLeaveRoom }) {
               to="/join-room"
               className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-indigo-500 text-white font-medium shadow-md hover:bg-indigo-600 transition"
             >
-              <LogIn size={18} />
-              <span>Join Room</span>
+              {isLoading ? (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+                    <span className="font-medium text-gray-300">
+                      Loading...
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <LogIn size={18} />
+                  <span>Join Room</span>
+                </>
+              )}
             </Link>
           )}
         </div>
@@ -155,8 +182,21 @@ export default function Navbar({ user, onLeaveRoom }) {
                     onClick={() => onLeaveRoom(user.id)}
                     className="flex items-center justify-center space-x-2 px-4 py-2 rounded-xl bg-red-600 text-white font-medium shadow-md hover:bg-indigo-600 transition"
                   >
-                    <LogOut size={18} />
-                    <span>Leave Room</span>
+                    {isLoading ? (
+                      <>
+                        <div className="flex items-center space-x-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+                          <span className="font-medium text-gray-300">
+                            Loading...
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <LogOut size={18} />
+                        <span>Leave Room</span>
+                      </>
+                    )}
                   </button>
                 ) : (
                   <button
@@ -176,8 +216,21 @@ export default function Navbar({ user, onLeaveRoom }) {
                 to="/join-room"
                 className="flex items-center justify-center space-x-2 px-4 py-2 rounded-xl bg-indigo-500 text-white font-medium shadow-md hover:bg-indigo-600 transition"
               >
-                <LogIn size={18} />
-                <span>Join Room</span>
+                {isLoading ? (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />
+                      <span className="font-medium text-gray-300">
+                        Loading...
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <LogIn size={18} />
+                    <span>Join Room</span>
+                  </>
+                )}
               </Link>
             )}
           </div>

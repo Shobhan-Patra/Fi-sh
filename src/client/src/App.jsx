@@ -24,6 +24,7 @@ import ErrorToast from './components/Common/ErrorToast';
 function App() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,10 +70,12 @@ function App() {
 
   async function handleCreateRoom() {
     try {
+      setIsLoading(true);
       const currentUser = await ensureUserExists();
       const roomResponse = await axios.post('/api/room/', {
         userId: currentUser.id,
       });
+      setIsLoading(false);
       navigate(`/room/${roomResponse.data.data.roomId}`);
     } catch (err) {
       setError('Failed to create the room. Please try again.');
@@ -82,10 +85,12 @@ function App() {
 
   async function handleJoinRoom(roomId) {
     try {
+      setIsLoading(true);
       const currentUser = await ensureUserExists();
       await axios.post(`/api/room/${roomId}`, {
         userId: currentUser.id,
       });
+      setIsLoading(false);
       navigate(`/room/${roomId}`);
     } catch (err) {
       setError('Could not join the room. Check the ID and try again.');
@@ -95,14 +100,17 @@ function App() {
 
   const handleLeaveRoomClick = async (userId) => {
     try {
+      setIsLoading(true);
       await axios.post(`/api/room/leave/${userId}`, {});
     } catch (err) {
       setError('An error occurred while leaving the room.');
       console.error(err);
     } finally {
-      setUser(null);
       sessionStorage.clear();
+      setUser(null);
+      setIsLoading(false);
       navigate('/');
+      // console.log("Left the room (successfully or otherwise)")
     }
   };
 
@@ -110,7 +118,11 @@ function App() {
     <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100">
       <ErrorToast message={error} onClose={() => setError(null)} />
 
-      <Navbar user={user} onLeaveRoom={handleLeaveRoomClick} />
+      <Navbar
+        user={user}
+        onLeaveRoom={handleLeaveRoomClick}
+        isLoading={isLoading}
+      />
       <main className="flex-1">
         <Routes>
           {/* ... Your Routes remain the same ... */}
@@ -120,7 +132,12 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route
             path="/create-room"
-            element={<CreateRoom onCreateRoom={handleCreateRoom} />}
+            element={
+              <CreateRoom
+                onCreateRoom={handleCreateRoom}
+                isLoading={isLoading}
+              />
+            }
           />
           <Route
             path="/join-room"
