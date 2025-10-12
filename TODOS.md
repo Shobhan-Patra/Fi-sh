@@ -1,2 +1,4 @@
 Realtime file updates
-Remove vite proxy
+Admin mode 
+Authenticated user sessions
+Reroute larger files to B2 Bucket

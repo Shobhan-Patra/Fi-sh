@@ -129,7 +129,7 @@ const deleteExpiredRooms = async () => {
       args: [],
     });
 
-    if (result.rowsAffected !== 0) {
+    if (result.rowsAffected > 0) {
       console.log(`Cleaned up ${result.changes} expired room records.`);
     }
   } catch (error) {

@@ -190,7 +190,7 @@ const deleteExpiredFileEntries = async () => {
       args: [],
     });
 
-    if (result.rowsAffected !== 0 && result.rowsAffected !== undefined) {
+    if (result.rowsAffected > 0) {
       console.log(`Cleaned up ${result.rowsAffected} expired file records.`);
     }
   } catch (error) {

@@ -59,7 +59,7 @@ const deleteExpiredUsers = async () => {
       args: [],
     });
 
-    if (result.rowsAffected !== 0) {
+    if (result.rowsAffected > 0) {
       console.log(`Cleaned up ${result.rowsAffected} expired user records.`);
     }
   } catch (error) {

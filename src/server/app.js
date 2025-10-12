@@ -15,7 +15,7 @@ const logStream = fs.createWriteStream(path.join(process.cwd(), 'access.log'), {
   flags: 'a',
 });
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://snipshare.pages.dev/";
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 100,
@@ -28,6 +28,7 @@ const limiter = rateLimit({
 });
 
 // -------- Middleware packages --------
+app.use(cors({ origin: FRONTEND_URL})); // Restrict requests to frontend
 app.use(cookieParser());
 app.use(express.json()); // For JSON bodies
 app.use(express.urlencoded({ extended: true })); // For form submissions
@@ -37,7 +38,6 @@ if (process.env.NODE_ENV === 'production')
 else app.use(morgan('dev')); // For request logging to console
 app.use(helmet()); // For additional security headers
 app.use('/api', limiter);
-app.use(cors({ origin: FRONTEND_URL, credentials: true })); // Restrict requests to frontend
 
 //  -------- Routers -------
 import fileRouter from './routes/fileStorage.js';
@@ -57,6 +57,7 @@ app.get('/healthcheck', (req, res) => {
 // app.all("*", (req, res) => {
 //   res.status(404).json({ message: "404 Not found" });
 // });
+console.log("CORS Middleware configured for origin:", process.env.FRONTEND_URL);
 
 app.use(ErrorHandler);
 export { app };
