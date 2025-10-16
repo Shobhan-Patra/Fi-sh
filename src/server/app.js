@@ -15,6 +15,8 @@ const logStream = fs.createWriteStream(path.join(process.cwd(), 'access.log'), {
   flags: 'a',
 });
 
+app.set('trust proxy', 1);
+
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://snipshare.pages.dev/";
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
@@ -28,14 +30,14 @@ const limiter = rateLimit({
 });
 
 // -------- Middleware packages --------
-app.use(cors({ origin: FRONTEND_URL})); // Restrict requests to frontend
+app.use(cors({ origin: FRONTEND_URL })); // Restrict requests to frontend
 app.use(cookieParser());
 app.use(express.json()); // For JSON bodies
 app.use(express.urlencoded({ extended: true })); // For form submissions
-if (process.env.NODE_ENV === 'production')
-  app.use(morgan('combined', { stream: logStream }));
+// if (process.env.NODE_ENV === 'production')
+//   app.use(morgan('combined', { stream: logStream }));
 // For request logging to file
-else app.use(morgan('dev')); // For request logging to console
+app.use(morgan('dev')); // For request logging to console
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } })); // For additional security headers
 app.use('/api', limiter);
 
