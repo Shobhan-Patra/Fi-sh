@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === 'production')
   app.use(morgan('combined', { stream: logStream }));
 // For request logging to file
 else app.use(morgan('dev')); // For request logging to console
-app.use(helmet()); // For additional security headers
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } })); // For additional security headers
 app.use('/api', limiter);
 
 //  -------- Routers -------

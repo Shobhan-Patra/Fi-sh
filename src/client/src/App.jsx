@@ -47,6 +47,7 @@ function App() {
     if (error) {
       const timer = setTimeout(() => {
         setError(null);
+        setIsLoading(false);
       }, 5000);
       return () => clearTimeout(timer);
     }
