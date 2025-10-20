@@ -9,6 +9,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import ErrorToast from '../components/Common/ErrorToast.jsx';
+import NotificationToast from "../components/Common/NotificationToast.jsx";
+import { socket } from "../socket.js";
 
 const MAX_SIZE_FILE_LIMIT = 100 * 1024 * 1024; // 100MB
 
@@ -18,6 +20,7 @@ export default function Room({ currentUser }) {
   const [roomParticipants, setRoomParticipants] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState([]);
   const [error, setError] = useState('');
+  const [notification, setNotification] = useState('');
   const { roomId } = useParams();
   const navigate = useNavigate();
 
@@ -46,7 +49,6 @@ export default function Room({ currentUser }) {
         } catch (error) {
           setError("Couldn't load room data, Please refresh the page");
           console.log(error);
-          return;
         } finally {
           setIsLoading(false);
         }
@@ -54,6 +56,46 @@ export default function Room({ currentUser }) {
       getAllData();
     }
   }, [roomId, currentUser, navigate]);
+
+  useEffect(() => {
+    if (roomId && currentUser) {
+        socket.emit('room:join', {
+          roomId: roomId,
+          userId: currentUser.id,
+          displayName: currentUser.display_name
+        })
+    }
+
+    const handleUserJoinEvent = ({ userId, displayName }) =>  {
+      console.log(`User: ${userId} joined`);
+      setNotification(`${displayName} joined the room`);
+    };
+
+    const handleUserLeaveEvent = ({ userId, displayName }) =>  {
+      console.log(`User: ${userId} left`)
+      setNotification(`${displayName} left the room`);
+    };
+
+    socket.on('user-joined', handleUserJoinEvent);
+    socket.on('user-left', handleUserLeaveEvent);
+
+    return () => {
+      console.log("Cleaning up room event listeners...");
+      socket.off('room:joined', handleUserJoinEvent);
+      socket.off('user-left', handleUserLeaveEvent);
+    }
+  }, [roomId, currentUser]);
+
+  useEffect(() => {
+    if (error || notification) {
+      const timer = setTimeout(() => {
+        setError(null);
+        setNotification('');
+        setIsLoading(false);
+      }, 3 * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, notification]);
 
   async function uploadFile(file) {
     const fileData = {
@@ -172,6 +214,7 @@ export default function Room({ currentUser }) {
       <RoomId roomId={roomId} />
       <UploadDropBox handleFiles={handleFiles} />
       <ErrorToast message={error} onClose={() => setError(null)} />
+      <NotificationToast message={notification} onClose={() => setNotification(null)} />
       <SharedFiles sharedFiles={sharedFiles} uploadingFiles={uploadingFiles} />
       <CardParticipantsList
         participants={roomParticipants}

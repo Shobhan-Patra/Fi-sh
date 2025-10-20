@@ -41,15 +41,6 @@ app.use(morgan('dev')); // For request logging to console
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } })); // For additional security headers
 app.use('/api', limiter);
 
-//  -------- Routers -------
-import fileRouter from './routes/fileStorage.js';
-import roomRouter from './routes/roomRouter.js';
-import userRouter from './routes/userRouter.js';
-
-app.use('/api/file', fileRouter);
-app.use('/api/room', roomRouter);
-app.use('/api/user', userRouter);
-
 //  ----- Server Healthcheck -----
 app.get('/healthcheck', (req, res) => {
   res.status(200).json({ message: 'Server working fine' });

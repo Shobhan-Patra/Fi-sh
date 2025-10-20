@@ -79,21 +79,8 @@ const updateFilesTable = asyncHandler(async (req, res) => {
     req.body;
   const fileId = uuidv4();
 
-  // const insertFileData = db.prepare(
-  //   'INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  // );
 
   try {
-    // const result = insertFileData.run(
-    // fileId,
-    // roomId,
-    // userId,
-    // filename,
-    // fileSize,
-    // contentType,
-    // downloadUrl
-    // );
-
     const result = await db.execute({
       sql: 'INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
       args: [

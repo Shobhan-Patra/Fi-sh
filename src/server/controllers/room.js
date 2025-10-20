@@ -8,15 +8,7 @@ const createRoom = asyncHandler(async (req, res) => {
   const roomId = generateRoomId();
   const { userId } = req.body;
 
-  // const insertRoom = db.prepare(
-  //   "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))"
-  // );
-  // const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
-
   try {
-    // const insertRoomResult = insertRoom.run(roomId, userId);
-    // const user = updateUser.run(roomId, userId);
-
     const insertRoomResult = await db.execute({
       sql: "INSERT INTO rooms (id, created_by, created_at, expires_at) VALUES (?, ?, CURRENT_TIMESTAMP, datetime('now', '+1 day'))",
       args: [roomId, userId],
@@ -55,18 +47,22 @@ const joinRoom = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   const { userId } = req.body;
 
-  try {
-    //   const updateUser = db.prepare('UPDATE users SET room_id = ? WHERE id = ?');
-    //   const user = updateUser.run(roomId, userId);
+  console.log(roomId, "-", userId);
 
+  try {
     const user = await db.execute({
-      sql: 'UPDATE users SET room_id = ? WHERE id = ?',
+      sql: 'UPDATE users SET room_id = ? WHERE id = ? RETURNING display_name',
       args: [roomId, userId],
     });
 
     if (user.rowsAffected === 0) {
       throw new ApiError(400, 'User is already in a room');
     }
+
+    const { display_name } = user;
+    req.io.to(roomId).emit('user-joined', {
+        message: `${display_name} joined the room`,
+    })
 
     await deleteExpiredRooms();
 
@@ -88,21 +84,20 @@ const joinRoom = asyncHandler(async (req, res) => {
 const leaveRoom = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
 
-  // const removeRoomId = db.prepare(
-  //   'UPDATE users SET room_id = NULL WHERE id = ?'
-  // );
-
   try {
-    // const result = removeRoomId.run(userId);
-
     const result = await db.execute({
-      sql: 'UPDATE users SET room_id = NULL WHERE id = ?',
+      sql: 'UPDATE users SET room_id = NULL WHERE id = ? RETURNING display_name, room_id',
       args: [userId],
     });
 
     if (result.rowsAffected === 0) {
       throw new ApiError(404, 'User not found');
     }
+
+    const { display_name, room_id } = result.rows[0];
+    req.io.to(room_id).emit('user-left', {
+      message: `${display_name} left the room`,
+    })
 
     await deleteExpiredRooms();
 
@@ -115,15 +110,9 @@ const leaveRoom = asyncHandler(async (req, res) => {
   }
 });
 
-// Use lazy-cleanup i.e Delete records only when someone queries rooms table
+// Use lazy-cleanup i.e. Delete records only when someone queries rooms table
 const deleteExpiredRooms = async () => {
-  // const deleteRoom = db.prepare(
-  //   "DELETE FROM rooms WHERE expires_at <= datetime('now')"
-  // );
-
   try {
-    // const result = deleteRoom.run();
-
     const result = await db.execute({
       sql: "DELETE FROM rooms WHERE expires_at <= datetime('now')",
       args: [],
