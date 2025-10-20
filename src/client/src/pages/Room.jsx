@@ -62,18 +62,29 @@ export default function Room({ currentUser }) {
         socket.emit('room:join', {
           roomId: roomId,
           userId: currentUser.id,
-          displayName: currentUser.display_name
+          display_name: currentUser.display_name
         })
     }
 
-    const handleUserJoinEvent = ({ userId, displayName }) =>  {
-      console.log(`User: ${userId} joined`);
-      setNotification(`${displayName} joined the room`);
+    const handleUserJoinEvent = ({ user }) =>  {
+      console.log(`User: ${user.id} joined`);
+      setRoomParticipants((prevParticipants) => {
+        const userExists = prevParticipants.some(
+            (participant) => participant.id === user.id
+        );
+
+        if (userExists) return prevParticipants;
+        else return [...prevParticipants, user];
+      });
+      setNotification(`${user.display_name} joined the room`);
     };
 
-    const handleUserLeaveEvent = ({ userId, displayName }) =>  {
+    const handleUserLeaveEvent = ({ userId, display_name }) =>  {
       console.log(`User: ${userId} left`)
-      setNotification(`${displayName} left the room`);
+      setRoomParticipants((prevParticipants) => {
+        return prevParticipants.filter(participant => participant.id !== userId);
+      });
+      setNotification(`${display_name} left the room`);
     };
 
     socket.on('user-joined', handleUserJoinEvent);
@@ -81,7 +92,7 @@ export default function Room({ currentUser }) {
 
     return () => {
       console.log("Cleaning up room event listeners...");
-      socket.off('room:joined', handleUserJoinEvent);
+      socket.off('user-joined', handleUserJoinEvent);
       socket.off('user-left', handleUserLeaveEvent);
     }
   }, [roomId, currentUser]);

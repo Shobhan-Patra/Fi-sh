@@ -4,44 +4,37 @@ export const initializeSocket = (io) => {
     io.on('connection', (socket) => {
         console.log('\x1b[36m%s\x1b[0m', "A user connected: ", socket.id);
 
-        socket.on('room:join', async ({ roomId, userId, displayName }) => {
+        socket.on('room:join', async ({ roomId, userId, display_name }) => {
             socket.join(roomId);
             socket.roomId = roomId;
-            socket.displayName = displayName;
+            socket.display_name = display_name;
             socket.userId = userId;
-
-            socket.to(roomId).emit('user-joined', {
-                userId: userId,
-                displayName: displayName,
-            });
 
             console.log('\x1b[36m%s\x1b[0m', `User ${socket.userId} joined room ${roomId}`);
         })
 
         socket.on('room:leave', () => {
-            const { roomId, userId, displayName} = socket;
-            console.log('\x1b[36m%s\x1b[0m', `User ${userId} left room ${roomId}`);
+            const { roomId, userId, display_name} = socket;
+            console.log('\x1b[36m%s\x1b[0m', `User: ${userId} (${display_name}) left room: ${roomId}`);
 
-            socket.to(roomId).emit('user-left', {
-                userId: userId,
-                displayName: displayName
-            });
             socket.leave(roomId);
         })
 
         socket.on('disconnect', async () => {
-            const { roomId, displayName} = socket;
+            const { roomId, userId, display_name} = socket;
 
             if (!roomId) {
                 console.log('\x1b[36m%s\x1b[0m', `Anonymous user disconnected: `, socket.id)
                 return;
             }
-            console.log('\x1b[36m%s\x1b[0m', `User ${displayName} disconnected from room ${roomId}: `, socket.id);
+            console.log('\x1b[36m%s\x1b[0m', `User ${display_name} disconnected from room ${roomId}: `, socket.id);
 
-            io.to(roomId).emit('user-left', {
-                userId: socket.userId,
-                displayName: socket.displayName
-            });
+            if (userId && display_name) {
+                io.to(roomId).emit('user-left', {
+                    userId: userId,
+                    display_name: display_name
+                });
+            }
         })
     })
 }

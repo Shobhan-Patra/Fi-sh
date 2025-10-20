@@ -49,7 +49,7 @@ const deleteExpiredUsers = async () => {
     }
   } catch (error) {
     console.log('Error while deleting expired user: ', error);
-    throw new Error('Error while lazy cleanup');
+    throw new ApiError(400, 'Error while lazy cleanup');
   }
 };
 

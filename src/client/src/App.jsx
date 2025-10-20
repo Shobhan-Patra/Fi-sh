@@ -129,7 +129,7 @@ function App() {
   const handleLeaveRoomClick = async (userId) => {
     try {
       setIsLoading(true);
-      socket.emit('room:leave', {});
+      socket.emit('room:leave');
       await axios.post(`/api/room/leave/${userId}`, {});
     } catch (err) {
       setError('An error occurred while leaving the room.');

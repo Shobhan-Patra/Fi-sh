@@ -51,7 +51,7 @@ const joinRoom = asyncHandler(async (req, res) => {
 
   try {
     const user = await db.execute({
-      sql: 'UPDATE users SET room_id = ? WHERE id = ? RETURNING display_name',
+      sql: 'UPDATE users SET room_id = ? WHERE id = ? RETURNING *',
       args: [roomId, userId],
     });
 
@@ -59,9 +59,8 @@ const joinRoom = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'User is already in a room');
     }
 
-    const { display_name } = user;
     req.io.to(roomId).emit('user-joined', {
-        message: `${display_name} joined the room`,
+        user: user.rows[0]
     })
 
     await deleteExpiredRooms();
@@ -85,18 +84,24 @@ const leaveRoom = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
 
   try {
-    const result = await db.execute({
-      sql: 'UPDATE users SET room_id = NULL WHERE id = ? RETURNING display_name, room_id',
+    const user = await db.execute({
+      sql: 'SELECT display_name, room_id FROM users WHERE id = ?',
       args: [userId],
     });
 
-    if (result.rowsAffected === 0) {
+    const result = await db.execute({
+      sql: 'UPDATE users SET room_id = NULL WHERE id = ?',
+      args: [userId],
+    });
+
+    if (user.rows.length === 0 || result.rowsAffected === 0) {
       throw new ApiError(404, 'User not found');
     }
 
-    const { display_name, room_id } = result.rows[0];
+    const { display_name, room_id } = user.rows[0];
     req.io.to(room_id).emit('user-left', {
-      message: `${display_name} left the room`,
+      userId: userId,
+      display_name: display_name,
     })
 
     await deleteExpiredRooms();
