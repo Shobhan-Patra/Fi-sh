@@ -20,7 +20,7 @@ import PrivacyPolicy from './pages/Privacy';
 import TermsOfService from './pages/TOS';
 import Support from './pages/Support';
 import ErrorToast from './components/Common/ErrorToast';
-import { socket } from "./socket.js";
+import { socket } from './socket.js';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,7 +40,7 @@ function App() {
       console.log('Disconnected from server');
     });
 
-    socket.on("connect_error", () => {
+    socket.on('connect_error', () => {
       setTimeout(() => {
         socket.connect();
       }, 1000);
@@ -64,7 +64,7 @@ function App() {
 
   useEffect(() => {
     if (location.pathname.startsWith('/refresh-session')) {
-      console.log("Session cleared");
+      console.log('Session cleared');
       sessionStorage.clear();
     }
   }, [location]);

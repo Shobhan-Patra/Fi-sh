@@ -47,7 +47,7 @@ const joinRoom = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   const { userId } = req.body;
 
-  console.log(roomId, "-", userId);
+  console.log(roomId, '-', userId);
 
   try {
     const user = await db.execute({
@@ -60,8 +60,8 @@ const joinRoom = asyncHandler(async (req, res) => {
     }
 
     req.io.to(roomId).emit('user-joined', {
-        user: user.rows[0]
-    })
+      user: user.rows[0],
+    });
 
     await deleteExpiredRooms();
 
@@ -102,7 +102,7 @@ const leaveRoom = asyncHandler(async (req, res) => {
     req.io.to(room_id).emit('user-left', {
       userId: userId,
       display_name: display_name,
-    })
+    });
 
     await deleteExpiredRooms();
 

@@ -23,7 +23,7 @@ function UploadingFileItem({ file }) {
 }
 
 export default function SharedFiles({ sharedFiles, uploadingFiles }) {
-  console.log('Files inside uploadingFiles : ', uploadingFiles);
+  // console.log('Files inside uploadingFiles : ', uploadingFiles);
 
   if (!Array.isArray(sharedFiles) || sharedFiles.length === 0) {
     return (
