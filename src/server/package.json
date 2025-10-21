@@ -17,7 +17,6 @@
     "@aws-sdk/s3-request-presigner": "^3.896.0",
     "@libsql/client": "^0.15.15",
     "@tursodatabase/sync": "^0.2.2",
-    "better-sqlite3": "^12.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
@@ -25,6 +24,7 @@
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
     "morgan": "^1.10.1",
+    "socket.io": "^4.8.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

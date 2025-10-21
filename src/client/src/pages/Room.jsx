@@ -9,6 +9,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import ErrorToast from '../components/Common/ErrorToast.jsx';
+import NotificationToast from '../components/Common/NotificationToast.jsx';
+import { socket } from '../socket.js';
+import truncateString from '../utils/truncateString.js';
 
 const MAX_SIZE_FILE_LIMIT = 100 * 1024 * 1024; // 100MB
 
@@ -18,6 +21,7 @@ export default function Room({ currentUser }) {
   const [roomParticipants, setRoomParticipants] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState([]);
   const [error, setError] = useState('');
+  const [notification, setNotification] = useState('');
   const { roomId } = useParams();
   const navigate = useNavigate();
 
@@ -46,7 +50,6 @@ export default function Room({ currentUser }) {
         } catch (error) {
           setError("Couldn't load room data, Please refresh the page");
           console.log(error);
-          return;
         } finally {
           setIsLoading(false);
         }
@@ -54,6 +57,68 @@ export default function Room({ currentUser }) {
       getAllData();
     }
   }, [roomId, currentUser, navigate]);
+
+  useEffect(() => {
+    if (roomId && currentUser) {
+      socket.emit('room:join', {
+        roomId: roomId,
+        userId: currentUser.id,
+        display_name: currentUser.display_name,
+      });
+    }
+
+    const handleUserJoinEvent = ({ user }) => {
+      console.log(`User: ${user.id} joined`);
+      setRoomParticipants((prevParticipants) => {
+        const userExists = prevParticipants.some(
+          (participant) => participant.id === user.id
+        );
+
+        if (userExists) return prevParticipants;
+        else return [...prevParticipants, user];
+      });
+      setNotification(`${user.display_name} joined the room`);
+    };
+
+    const handleUserLeaveEvent = ({ userId, display_name }) => {
+      console.log(`User: ${userId} left`);
+      setRoomParticipants((prevParticipants) => {
+        return prevParticipants.filter(
+          (participant) => participant.id !== userId
+        );
+      });
+      setNotification(`${display_name} left the room`);
+    };
+
+    const handleFileUpload = ({ fileData, display_name }) => {
+      console.log('File uploaded: ', fileData, display_name);
+      setSharedFiles((prevFiles) => [...prevFiles, fileData]);
+      const truncatedFileName = truncateString(fileData.file_name);
+      setNotification(`${display_name} uploaded ${truncatedFileName}`);
+    };
+
+    socket.on('user-joined', handleUserJoinEvent);
+    socket.on('user-left', handleUserLeaveEvent);
+    socket.on('file:upload', handleFileUpload);
+
+    return () => {
+      console.log('Cleaning up room event listeners...');
+      socket.off('user-joined', handleUserJoinEvent);
+      socket.off('user-left', handleUserLeaveEvent);
+      socket.off('file:upload', handleFileUpload);
+    };
+  }, [roomId, currentUser, sharedFiles]);
+
+  useEffect(() => {
+    if (error || notification) {
+      const timer = setTimeout(() => {
+        setError('');
+        setNotification('');
+        setIsLoading(false);
+      }, 3 * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, notification]);
 
   async function uploadFile(file) {
     const fileData = {
@@ -107,7 +172,11 @@ export default function Room({ currentUser }) {
       fileData.downloadUrl = await getDownloadUrl(key, fileData.filename);
 
       // update files table
-      const { data } = await axios.post('/api/file/update', fileData);
+      const { data } = await axios.post('/api/file/update', fileData, {
+        headers: {
+          'X-Socket-Id': socket.id,
+        },
+      });
       console.log(data);
 
       // Update sharedFiles after uploading a file
@@ -143,8 +212,9 @@ export default function Room({ currentUser }) {
 
     if (oversizedFiles.length > 0) {
       const oversizedFileNames = oversizedFiles.map((f) => f.name).join(', ');
+      const truncatedFileName = truncateString(oversizedFileNames);
       setError(
-        `The following files are too large (max 100 MB): ${oversizedFileNames}`
+        `The following files are too large (max 100 MB): ${truncatedFileName}`
       );
     }
 
@@ -172,6 +242,10 @@ export default function Room({ currentUser }) {
       <RoomId roomId={roomId} />
       <UploadDropBox handleFiles={handleFiles} />
       <ErrorToast message={error} onClose={() => setError(null)} />
+      <NotificationToast
+        message={notification}
+        onClose={() => setNotification('')}
+      />
       <SharedFiles sharedFiles={sharedFiles} uploadingFiles={uploadingFiles} />
       <CardParticipantsList
         participants={roomParticipants}

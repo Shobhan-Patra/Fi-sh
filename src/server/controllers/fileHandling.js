@@ -77,22 +77,18 @@ const getDownloadUrl = asyncHandler(async (req, res) => {
 const updateFilesTable = asyncHandler(async (req, res) => {
   const { roomId, userId, filename, fileSize, contentType, downloadUrl } =
     req.body;
+  const senderSocketId = req.get('X-Socket-Id');
   const fileId = uuidv4();
 
-  // const insertFileData = db.prepare(
-  //   'INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  // );
-
   try {
-    // const result = insertFileData.run(
-    // fileId,
-    // roomId,
-    // userId,
-    // filename,
-    // fileSize,
-    // contentType,
-    // downloadUrl
-    // );
+    const user = await db.execute({
+      sql: 'SELECT display_name FROM users WHERE id = ?',
+      args: [userId],
+    });
+
+    if (user.rows.length === 0) {
+      throw new ApiError(404, 'User not found');
+    }
 
     const result = await db.execute({
       sql: 'INSERT INTO files (id, room_id, uploaded_by, file_name, file_size, mime_type, storage_url) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -111,15 +107,19 @@ const updateFilesTable = asyncHandler(async (req, res) => {
       throw new Error('No changes made');
     }
 
-    // const getNewFile = db.prepare('SELECT * FROM files WHERE id = ?');
-    // const newFileRow = getNewFile.get(fileId);
-
     const FileRowresult = await db.execute({
       sql: 'SELECT * FROM files WHERE id = ?',
       args: [fileId],
     });
 
     const newFileRow = FileRowresult.rows[0];
+
+    const display_name = user.rows[0].display_name;
+    console.log('fileData: ', newFileRow);
+    req.io.to(roomId).except(senderSocketId).emit('file:upload', {
+      fileData: newFileRow,
+      display_name: display_name,
+    });
 
     await deleteExpiredFileEntries();
 

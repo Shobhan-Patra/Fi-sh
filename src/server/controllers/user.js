@@ -10,14 +10,7 @@ const createUser = asyncHandler(async (req, res) => {
   const displayName = generateRandomUserName();
   console.log(displayName);
 
-  // const insertUser = db.prepare(
-  //   'INSERT INTO users (id, display_name) VALUES (?, ?)'
-  // );
-  // const getUser = db.prepare('SELECT * FROM users WHERE id = ?');
-
   try {
-    // const result = insertUser.run(userId, displayName);
-
     const result = await db.execute({
       sql: 'INSERT INTO users (id, display_name) VALUES (?, ?)',
       args: [userId, displayName],
@@ -28,8 +21,6 @@ const createUser = asyncHandler(async (req, res) => {
     }
 
     await deleteExpiredUsers();
-
-    // const userRow = getUser.get(userId);
 
     const userRow = await db.execute({
       sql: 'SELECT * FROM users WHERE id = ?',
@@ -47,13 +38,7 @@ const createUser = asyncHandler(async (req, res) => {
 
 // Use lazy-cleanup i.e Delete records only when someone queries users table
 const deleteExpiredUsers = async () => {
-  // const deleteUser = db.prepare(
-  //   "DELETE FROM users WHERE joined_at <= datetime('now', '-7 days')"
-  // );
-
   try {
-    // const result = deleteUser.run();
-
     const result = await db.execute({
       sql: "DELETE FROM users WHERE joined_at <= datetime('now', '-7 days')",
       args: [],
@@ -64,17 +49,13 @@ const deleteExpiredUsers = async () => {
     }
   } catch (error) {
     console.log('Error while deleting expired user: ', error);
-    throw new Error('Error while lazy cleanup');
+    throw new ApiError(400, 'Error while lazy cleanup');
   }
 };
 
 const getRoomId = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
-  // const getRoomId = db.prepare('SELECT room_id FROM users WHERE id = (?)');
-
   try {
-    // const result = getRoomId.get(userId);
-
     const result = await db.execute({
       sql: 'SELECT room_id FROM users WHERE id = (?)',
       args: [userId],

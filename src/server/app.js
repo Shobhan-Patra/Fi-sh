@@ -17,7 +17,7 @@ const logStream = fs.createWriteStream(path.join(process.cwd(), 'access.log'), {
 
 app.set('trust proxy', 1);
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://snipshare.pages.dev/";
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://snipshare.pages.dev/';
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 100,
@@ -38,17 +38,8 @@ app.use(express.urlencoded({ extended: true })); // For form submissions
 //   app.use(morgan('combined', { stream: logStream }));
 // For request logging to file
 app.use(morgan('dev')); // For request logging to console
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } })); // For additional security headers
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } })); // For additional security headers
 app.use('/api', limiter);
-
-//  -------- Routers -------
-import fileRouter from './routes/fileStorage.js';
-import roomRouter from './routes/roomRouter.js';
-import userRouter from './routes/userRouter.js';
-
-app.use('/api/file', fileRouter);
-app.use('/api/room', roomRouter);
-app.use('/api/user', userRouter);
 
 //  ----- Server Healthcheck -----
 app.get('/healthcheck', (req, res) => {
@@ -59,7 +50,7 @@ app.get('/healthcheck', (req, res) => {
 // app.all("*", (req, res) => {
 //   res.status(404).json({ message: "404 Not found" });
 // });
-console.log("CORS Middleware configured for origin:", process.env.FRONTEND_URL);
+console.log('CORS Middleware configured for origin:', process.env.FRONTEND_URL);
 
 app.use(ErrorHandler);
 export { app };

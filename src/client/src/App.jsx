@@ -20,6 +20,7 @@ import PrivacyPolicy from './pages/Privacy';
 import TermsOfService from './pages/TOS';
 import Support from './pages/Support';
 import ErrorToast from './components/Common/ErrorToast';
+import { socket } from './socket.js';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -30,6 +31,31 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
+    socket.connect();
+    socket.on('connect', () => {
+      console.log('Connected to server with socket ID:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+    });
+
+    socket.on('connect_error', () => {
+      setTimeout(() => {
+        socket.connect();
+      }, 1000);
+    });
+
+    return () => {
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('connect_error');
+      socket.disconnect(); // Explicitly disconnect the socket
+    };
+  }, []);
+
+  // hydrate user
+  useEffect(() => {
     const savedUser = sessionStorage.getItem('user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -38,6 +64,7 @@ function App() {
 
   useEffect(() => {
     if (location.pathname.startsWith('/refresh-session')) {
+      console.log('Session cleared');
       sessionStorage.clear();
     }
   }, [location]);
@@ -48,7 +75,7 @@ function App() {
       const timer = setTimeout(() => {
         setError(null);
         setIsLoading(false);
-      }, 5000);
+      }, 3 * 1000);
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -102,6 +129,7 @@ function App() {
   const handleLeaveRoomClick = async (userId) => {
     try {
       setIsLoading(true);
+      socket.emit('room:leave');
       await axios.post(`/api/room/leave/${userId}`, {});
     } catch (err) {
       setError('An error occurred while leaving the room.');
