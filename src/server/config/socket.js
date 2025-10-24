@@ -1,3 +1,5 @@
+let disconnectTimers = new Map();
+
 export const initializeSocket = (io) => {
   io.on('connection', (socket) => {
     console.log('\x1b[36m%s\x1b[0m', 'A user connected: ', socket.id);
@@ -12,6 +14,11 @@ export const initializeSocket = (io) => {
         '\x1b[36m%s\x1b[0m',
         `User ${socket.userId} joined room ${roomId}`
       );
+
+      if (disconnectTimers.has(userId)) {
+        clearTimeout(disconnectTimers.get(userId));
+        disconnectTimers.delete(userId);
+        console.log(`User ${display_name} reconnected within the grace period. Timer cancelled.`);      }
     });
 
     socket.on('room:leave', () => {
@@ -41,12 +48,17 @@ export const initializeSocket = (io) => {
         socket.id
       );
 
-      // if (userId && display_name) {
-      //   io.to(roomId).emit('user-left', {
-      //     userId: userId,
-      //     display_name: display_name,
-      //   });
-      // }
+      const timer = setTimeout(() => {
+        console.log(`Grace period ended for ${display_name}: ${userId} `);
+        io.to(roomId).emit('user-left', {
+          userId: userId,
+          display_name: display_name
+        });
+        // roomOccupants.get(roomId)?.delete(userId);
+        disconnectTimers.delete(userId);
+      }, 5000);
+
+      disconnectTimers.set(userId, timer);
     });
   });
 };
