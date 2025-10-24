@@ -1,6 +1,5 @@
-const truncateString = (givenString) => {
+const truncateString = (givenString, maxLength = 40) => {
   if (!givenString) return '';
-  const maxLength = 40;
   const trimmedString = givenString.trim();
 
   if (trimmedString.length <= maxLength) {

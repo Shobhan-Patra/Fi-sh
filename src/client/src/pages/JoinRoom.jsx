@@ -8,7 +8,7 @@ export default function JoinRoom({ onJoinRoom }) {
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    if (roomId.length !== 6) {
+    if (roomId.trim().length !== 6) {
       setError('Please enter a valid Room Id');
       return;
     }
