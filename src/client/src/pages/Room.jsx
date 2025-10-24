@@ -59,13 +59,28 @@ export default function Room({ currentUser }) {
   }, [roomId, currentUser, navigate]);
 
   useEffect(() => {
-    if (roomId && currentUser) {
-      socket.emit('room:join', {
-        roomId: roomId,
-        userId: currentUser.id,
-        display_name: currentUser.display_name,
-      });
-    }
+    socket.connect();
+
+    const onSocketConnection = () => {
+      console.log('Connected to server with socket ID:', socket.id);
+      if (roomId && currentUser) {
+        socket.emit('room:join', {
+          roomId: roomId,
+          userId: currentUser.id,
+          display_name: currentUser.display_name,
+        });
+      }
+    };
+
+    const onSocketDisconnect = () => {
+      console.log('Disconnected from server');
+    };
+
+    const onSocketConnectionError = () => {
+      setTimeout(() => {
+        socket.connect();
+      }, 1000);
+    };
 
     const handleUserJoinEvent = ({ user }) => {
       console.log(`User: ${user.id} joined`);
@@ -97,6 +112,9 @@ export default function Room({ currentUser }) {
       setNotification(`${display_name} uploaded ${truncatedFileName}`);
     };
 
+    socket.on('connect', onSocketConnection);
+    socket.on('disconnect', onSocketDisconnect);
+    socket.on('connect_error', onSocketConnectionError);
     socket.on('user-joined', handleUserJoinEvent);
     socket.on('user-left', handleUserLeaveEvent);
     socket.on('file:upload', handleFileUpload);
@@ -106,8 +124,12 @@ export default function Room({ currentUser }) {
       socket.off('user-joined', handleUserJoinEvent);
       socket.off('user-left', handleUserLeaveEvent);
       socket.off('file:upload', handleFileUpload);
+      socket.off('connect', onSocketConnection);
+      socket.off('disconnect', onSocketDisconnect);
+      socket.off('connect_error', onSocketConnectionError);
+      socket.disconnect(); // Explicitly disconnect the socket
     };
-  }, [roomId, currentUser, sharedFiles]);
+  }, [roomId, currentUser]);
 
   useEffect(() => {
     if (error || notification) {
@@ -124,7 +146,7 @@ export default function Room({ currentUser }) {
     const fileData = {
       roomId: roomId,
       userId: currentUser.id,
-      filename: file.name,
+      filename: truncateString(file.name, 60),
       fileSize: filesize(parseInt(file.size)),
       contentType: file.type,
       downloadUrl: '',
@@ -172,7 +194,10 @@ export default function Room({ currentUser }) {
       fileData.downloadUrl = await getDownloadUrl(key, fileData.filename);
 
       // update files table
-      const { data } = await axios.post('/api/file/update', fileData, {
+      const { data } = await axios.post('/api/file/update', {
+        fileData: fileData,
+        display_name: currentUser.display_name
+      }, {
         headers: {
           'X-Socket-Id': socket.id,
         },

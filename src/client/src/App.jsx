@@ -30,30 +30,6 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    socket.connect();
-    socket.on('connect', () => {
-      console.log('Connected to server with socket ID:', socket.id);
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server');
-    });
-
-    socket.on('connect_error', () => {
-      setTimeout(() => {
-        socket.connect();
-      }, 1000);
-    });
-
-    return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('connect_error');
-      socket.disconnect(); // Explicitly disconnect the socket
-    };
-  }, []);
-
   // hydrate user
   useEffect(() => {
     const savedUser = sessionStorage.getItem('user');
