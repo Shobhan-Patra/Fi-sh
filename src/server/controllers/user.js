@@ -12,7 +12,7 @@ const createUser = asyncHandler(async (req, res) => {
 
   try {
     const result = await db.execute({
-      sql: 'INSERT INTO users (id, display_name) VALUES (?, ?)',
+      sql: 'INSERT INTO users (id, display_name) VALUES (?, ?) RETURNING *',
       args: [userId, displayName],
     });
 
@@ -20,16 +20,9 @@ const createUser = asyncHandler(async (req, res) => {
       throw new Error('No changes made to user table');
     }
 
-    await deleteExpiredUsers();
-
-    const userRow = await db.execute({
-      sql: 'SELECT * FROM users WHERE id = ?',
-      args: [userId],
-    });
-
     return res
       .status(201)
-      .json(new ApiResponse(200, userRow.rows[0], 'User created successfully'));
+      .json(new ApiResponse(200, result.rows[0], 'User created successfully'));
   } catch (error) {
     console.log('Error creating user: ', error);
     throw new ApiError(400, 'Error creating user');
@@ -37,21 +30,21 @@ const createUser = asyncHandler(async (req, res) => {
 });
 
 // Use lazy-cleanup i.e Delete records only when someone queries users table
-const deleteExpiredUsers = async () => {
-  try {
-    const result = await db.execute({
-      sql: "DELETE FROM users WHERE joined_at <= datetime('now', '-7 days')",
-      args: [],
-    });
-
-    if (result.rowsAffected > 0) {
-      console.log(`Cleaned up ${result.rowsAffected} expired user records.`);
-    }
-  } catch (error) {
-    console.log('Error while deleting expired user: ', error);
-    throw new ApiError(400, 'Error while lazy cleanup');
-  }
-};
+// const deleteExpiredUsers = async () => {
+//   try {
+//     const result = await db.execute({
+//       sql: "DELETE FROM users WHERE joined_at <= datetime('now', '-7 days')",
+//       args: [],
+//     });
+//
+//     if (result.rowsAffected > 0) {
+//       console.log(`Cleaned up ${result.rowsAffected} expired user records.`);
+//     }
+//   } catch (error) {
+//     console.log('Error while deleting expired user: ', error);
+//     throw new ApiError(400, 'Error while lazy cleanup');
+//   }
+// };
 
 const getRoomId = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
@@ -64,8 +57,6 @@ const getRoomId = asyncHandler(async (req, res) => {
     if (result.rows.length === 0) {
       throw new ApiError('User not found');
     }
-
-    await deleteExpiredUsers();
 
     return res
       .status(200)
