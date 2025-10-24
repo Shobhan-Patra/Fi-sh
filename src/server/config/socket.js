@@ -1,5 +1,3 @@
-import db from '../db/db.js';
-
 export const initializeSocket = (io) => {
   io.on('connection', (socket) => {
     console.log('\x1b[36m%s\x1b[0m', 'A user connected: ', socket.id);
@@ -43,12 +41,12 @@ export const initializeSocket = (io) => {
         socket.id
       );
 
-      if (userId && display_name) {
-        io.to(roomId).emit('user-left', {
-          userId: userId,
-          display_name: display_name,
-        });
-      }
+      // if (userId && display_name) {
+      //   io.to(roomId).emit('user-left', {
+      //     userId: userId,
+      //     display_name: display_name,
+      //   });
+      // }
     });
   });
 };
