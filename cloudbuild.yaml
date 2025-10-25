@@ -1,0 +1,35 @@
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', 'asia-south1-docker.pkg.dev/${PROJECT_ID}/fi-sh-backend/fi-sh-backend:${COMMIT_SHA}', 'src/server' ]
+
+  # Step 2: Push the Docker image to Artifacts Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', 'asia-south1-docker.pkg.dev/${PROJECT_ID}/fi-sh-backend/fi-sh-backend:${COMMIT_SHA}' ]
+
+  # Step 3: Deploy the containerized application to Cloud Run.
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'fi-sh-backend'
+      - '--image'
+      - 'asia-south1-docker.pkg.dev/${PROJECT_ID}/fi-sh-backend/fi-sh-backend:${COMMIT_SHA}'
+      - '--region'
+      - 'asia-south1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--project'
+      - '${PROJECT_ID}'
+      - '--port'
+      - '8000' # Your application listens on port 8000
+      - '--update-secrets=FRONTEND_URL=FRONTEND_URL:latest,SERVER_PORT=SERVER_PORT:latest,DB_FILE=DB_FILE:latest,TURSO_DATABASE_URL=TURSO_DATABASE_URL:latest,TURSO_AUTH_TOKEN=TURSO_AUTH_TOKEN:latest,R2_TOKEN_VALUE=R2_TOKEN_VALUE:latest,R2_ACCESS_KEY_ID=R2_ACCESS_KEY_ID:latest,R2_SECRET_ACCESS_KEY=R2_SECRET_ACCESS_KEY:latest,R2_ACCOUNT_ID=R2_ACCOUNT_ID:latest,R2_BUCKET_NAME=R2_BUCKET_NAME:latest,CRON_SECRET=CRON_SECRET:latest,NODE_ENV=NODE_ENV:latest'
+    env:
+      - 'CLOUDSDK_CORE_PROJECT=${PROJECT_ID}'
+
+images:
+  - 'asia-south1-docker.pkg.dev/${PROJECT_ID}/fi-sh-backend/fi-sh-backend:${COMMIT_SHA}'
+
+options:
+    logging: CLOUD_LOGGING_ONLY
