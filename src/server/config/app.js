@@ -2,15 +2,13 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import path from 'path';
-import ErrorHandler from './middlewares/errorHandling.js';
+import ErrorHandler from '../middlewares/errorHandling.js';
 import rateLimit from 'express-rate-limit';
-// import { startCleanUp } from './utils/cleanUp.js';
+import { startCleanUp } from '../utils/cleanUp.js';
 
-dotenv.config();
 const app = express();
 const logStream = fs.createWriteStream(path.join(process.cwd(), 'access.log'), {
   flags: 'a',
@@ -48,10 +46,10 @@ app.get('/healthcheck', (req, res) => {
 });
 
 //  ----- CleanUp of expired data records -----
-// app.post(`/api/cleanup/${process.env.CRON_SECRET}`, async (req, res) => {
-//   await startCleanUp();
-//   res.status(200).json({ message: 'Finished Cleaning Up' });
-// });
+app.post(`/api/cleanup/${process.env.CRON_SECRET}`, async (req, res) => {
+  await startCleanUp();
+  res.status(200).json({ message: 'Finished Cleaning Up' });
+});
 
 console.log('CORS Middleware configured for origin:', process.env.FRONTEND_URL);
 

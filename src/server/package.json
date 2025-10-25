@@ -5,8 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch config/server.js",
-    "format": "prettier --write \"app.js\" \"{config,controllers,db,middlewares,routes,utils}/**/*.js\""
+    "dev": "node --watch --env-file=.env server.js",
+    "start": "node --env-file=.env server.js",
+    "format": "prettier --write \"server.js\" \"{config,controllers,db,middlewares,routes,utils}/**/*.js\""
   },
   "keywords": [],
   "author": "",
@@ -19,7 +20,6 @@
     "@tursodatabase/sync": "^0.2.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",

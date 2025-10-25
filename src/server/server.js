@@ -1,10 +1,10 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { app } from '../app.js';
-import { initializeSocket } from './socket.js';
-import fileRouter from '../routes/fileStorage.js';
-import roomRouter from '../routes/roomRouter.js';
-import userRouter from '../routes/userRouter.js';
+import { app } from './config/app.js';
+import { initializeSocket } from './config/socket.js';
+import fileRouter from './routes/fileStorage.js';
+import roomRouter from './routes/roomRouter.js';
+import userRouter from './routes/userRouter.js';
 
 const httpServer = createServer(app);
 
