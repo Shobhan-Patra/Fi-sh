@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import ErrorHandler from './middlewares/errorHandling.js';
 import rateLimit from 'express-rate-limit';
+// import { startCleanUp } from './utils/cleanUp.js';
 
 dotenv.config();
 const app = express();
@@ -20,7 +21,7 @@ app.set('trust proxy', 1);
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://snipshare.pages.dev/';
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 100,
+  max: 200,
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false,
   message: {
@@ -45,6 +46,12 @@ app.use('/api', limiter);
 app.get('/healthcheck', (req, res) => {
   res.status(200).json({ message: 'Server working fine' });
 });
+
+//  ----- CleanUp of expired data records -----
+// app.post(`/api/cleanup/${process.env.CRON_SECRET}`, async (req, res) => {
+//   await startCleanUp();
+//   res.status(200).json({ message: 'Finished Cleaning Up' });
+// });
 
 console.log('CORS Middleware configured for origin:', process.env.FRONTEND_URL);
 

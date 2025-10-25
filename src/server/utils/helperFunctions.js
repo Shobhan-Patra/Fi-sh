@@ -31,6 +31,13 @@ export function generateRandomUserName() {
     'Neon',
     'Pink',
     'Beige',
+    'Majenta',
+    'Turquoise',
+    'Maroon',
+    'Silver',
+    'Olive',
+    'Peach',
+    'Gray',
   ];
   const animals = [
     'Elephant',
@@ -48,22 +55,14 @@ export function generateRandomUserName() {
     'Buffalo',
     'Hyena',
     'Wolf',
+    'Horse',
+    'Rabbit',
+    'Goat',
+    'Sheep',
+    'Frog',
+    'Dolphin',
+    'Camel',
   ];
-  // const fruits = [
-  //   'Apple',
-  //   'Banana',
-  //   'Orange',
-  //   'Mango',
-  //   'Peach',
-  //   'Strawberry',
-  //   'Guava',
-  //   'Pear',
-  //   'Dragonfruit',
-  //   'Jackfruit',
-  //   'Cherry',
-  //   'Watermelon',
-  //   'Lemon',
-  // ];
 
   let username = '';
   username += colors[Math.floor(Math.random() * colors.length)];
