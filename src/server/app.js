@@ -46,10 +46,6 @@ app.get('/healthcheck', (req, res) => {
   res.status(200).json({ message: 'Server working fine' });
 });
 
-// ------ Catch-all request handler ------
-// app.all("*", (req, res) => {
-//   res.status(404).json({ message: "404 Not found" });
-// });
 console.log('CORS Middleware configured for origin:', process.env.FRONTEND_URL);
 
 app.use(ErrorHandler);

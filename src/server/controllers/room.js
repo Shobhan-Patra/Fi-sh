@@ -26,8 +26,6 @@ const createRoom = asyncHandler(async (req, res) => {
       throw new Error('Failed to create new Room');
     }
 
-    await deleteExpiredRooms();
-
     return res.status(200).json(
       new ApiResponse(
         200,
@@ -62,8 +60,6 @@ const joinRoom = asyncHandler(async (req, res) => {
     req.io.to(roomId).emit('user-joined', {
       user: user.rows[0],
     });
-
-    await deleteExpiredRooms();
 
     return res
       .status(200)
@@ -104,8 +100,6 @@ const leaveRoom = asyncHandler(async (req, res) => {
       display_name: display_name,
     });
 
-    await deleteExpiredRooms();
-
     return res
       .status(200)
       .json(new ApiResponse(200, null, 'User left room successfully'));
@@ -114,22 +108,5 @@ const leaveRoom = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Error leaving room');
   }
 });
-
-// Use lazy-cleanup i.e. Delete records only when someone queries rooms table
-const deleteExpiredRooms = async () => {
-  try {
-    const result = await db.execute({
-      sql: "DELETE FROM rooms WHERE expires_at <= datetime('now')",
-      args: [],
-    });
-
-    if (result.rowsAffected > 0) {
-      console.log(`Cleaned up ${result.changes} expired room records.`);
-    }
-  } catch (error) {
-    console.log('Error while deleting room: ', error);
-    throw new ApiError(400, 'DB error');
-  }
-};
 
 export { createRoom, joinRoom, leaveRoom };

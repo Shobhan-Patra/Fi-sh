@@ -18,7 +18,10 @@ export const initializeSocket = (io) => {
       if (disconnectTimers.has(userId)) {
         clearTimeout(disconnectTimers.get(userId));
         disconnectTimers.delete(userId);
-        console.log(`User ${display_name} reconnected within the grace period. Timer cancelled.`);      }
+        console.log(
+          `User ${display_name} reconnected within the grace period. Timer cancelled.`
+        );
+      }
     });
 
     socket.on('room:leave', () => {
@@ -52,7 +55,7 @@ export const initializeSocket = (io) => {
         console.log(`Grace period ended for ${display_name}: ${userId} `);
         io.to(roomId).emit('user-left', {
           userId: userId,
-          display_name: display_name
+          display_name: display_name,
         });
         // roomOccupants.get(roomId)?.delete(userId);
         disconnectTimers.delete(userId);

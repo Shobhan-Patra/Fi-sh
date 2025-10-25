@@ -151,28 +151,6 @@ const fetchSharedFilesAndRoomParticipants = asyncHandler(async (req, res) => {
   }
 });
 
-// const deleteExpiredFileEntries = async () => {
-//   // const deleteFileEntry = db.prepare(
-//   //   "DELETE FROM files WHERE uploaded_at <= datetime('now', '-24 hours')"
-//   // );
-//
-//   try {
-//     // const result = deleteFileEntry.run();
-//
-//     const result = await db.execute({
-//       sql: "DELETE FROM files WHERE uploaded_at <= datetime('now', '-24 hours')",
-//       args: [],
-//     });
-//
-//     if (result.rowsAffected > 0) {
-//       console.log(`Cleaned up ${result.rowsAffected} expired file records.`);
-//     }
-//   } catch (error) {
-//     console.log('Error while deleting file entry: ', error);
-//     throw new ApiError(400, 'Error during lazy cleanup of files');
-//   }
-// };
-
 export {
   getUploadUrl,
   getDownloadUrl,

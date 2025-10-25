@@ -25,7 +25,10 @@ function UploadingFileItem({ file }) {
 export default function SharedFiles({ sharedFiles, uploadingFiles }) {
   // console.log('Files inside uploadingFiles : ', uploadingFiles);
 
-  if ((!Array.isArray(sharedFiles) || sharedFiles.length === 0) && uploadingFiles.length === 0) {
+  if (
+    (!Array.isArray(sharedFiles) || sharedFiles.length === 0) &&
+    uploadingFiles.length === 0
+  ) {
     return (
       <div className="w-full max-w-3xl">
         <h3 className="text-2xl font-bold mb-6 text-indigo-400">

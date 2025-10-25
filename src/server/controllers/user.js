@@ -29,23 +29,6 @@ const createUser = asyncHandler(async (req, res) => {
   }
 });
 
-// Use lazy-cleanup i.e Delete records only when someone queries users table
-// const deleteExpiredUsers = async () => {
-//   try {
-//     const result = await db.execute({
-//       sql: "DELETE FROM users WHERE joined_at <= datetime('now', '-7 days')",
-//       args: [],
-//     });
-//
-//     if (result.rowsAffected > 0) {
-//       console.log(`Cleaned up ${result.rowsAffected} expired user records.`);
-//     }
-//   } catch (error) {
-//     console.log('Error while deleting expired user: ', error);
-//     throw new ApiError(400, 'Error while lazy cleanup');
-//   }
-// };
-
 const getRoomId = asyncHandler(async (req, res) => {
   const userId = req.params.userId;
   try {
