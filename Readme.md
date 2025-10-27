@@ -27,25 +27,86 @@ The application uses a decoupled frontend and backend. The React client communic
 
 ## Project Structure
 ```
-│  
-│   ├── README.md
-│   ├── src
-│   └── vite.config.js
-└── server
-    ├── access.log
-    ├── config
-    |── controllers
-    ├── db
-    ├── Dockerfile
-    ├── local.db
-    ├── middlewares
-    ├── package.json
-    ├── package-lock.json
-    ├── pnpm-lock.yaml
-    ├── pnpm-workspace.yaml
-    ├── routes
-    ├── server.js
-    └── utils
+├── cloudbuild.yaml
+├── LICENSE
+├── Readme.md
+├── src
+│   ├── client
+│   │   ├── eslint.config.js
+│   │   ├── index.html
+│   │   ├── package.json
+│   │   ├── pnpm-lock.yaml
+│   │   ├── public
+│   │   │   └── favicon.ico
+│   │   ├── src
+│   │   │   ├── App.jsx
+│   │   │   ├── assets
+│   │   │   │   ├── hero.png
+│   │   │   │   └── nav-icon.png
+│   │   │   ├── components
+│   │   │   │   ├── Common
+│   │   │   │   │   ├── ErrorToast.jsx
+│   │   │   │   │   ├── Footer.jsx
+│   │   │   │   │   ├── Navbar.jsx
+│   │   │   │   │   ├── NotificationToast.jsx
+│   │   │   │   │   └── userCorner.jsx
+│   │   │   │   ├── LandingPageComponents
+│   │   │   │   │   ├── Features.jsx
+│   │   │   │   │   └── Hero.jsx
+│   │   │   │   └── RoomComponents
+│   │   │   │       ├── ParticipantsList.jsx
+│   │   │   │       ├── RoomId.jsx
+│   │   │   │       ├── SharedFiles.jsx
+│   │   │   │       ├── SkeletonLoading.jsx
+│   │   │   │       └── UploadDropBox.jsx
+│   │   │   ├── index.css
+│   │   │   ├── main.jsx
+│   │   │   ├── pages
+│   │   │   │   ├── About.jsx
+│   │   │   │   ├── Contact.jsx
+│   │   │   │   ├── CreateRoom.jsx
+│   │   │   │   ├── HowItWorks.jsx
+│   │   │   │   ├── JoinRoom.jsx
+│   │   │   │   ├── LandingPage.jsx
+│   │   │   │   ├── Privacy.jsx
+│   │   │   │   ├── Room.jsx
+│   │   │   │   ├── Support.jsx
+│   │   │   │   └── TOS.jsx
+│   │   │   ├── socket.js
+│   │   │   └── utils
+│   │   │       ├── getDownloadUrl.js
+│   │   │       └── truncateString.js
+│   │   └── vite.config.js
+│   └── server
+│       ├── config
+│       │   ├── app.js
+│       │   ├── R2_Bucket.js
+│       │   └── socket.js
+│       ├── controllers
+│       │   ├── fileHandling.js
+│       │   ├── room.js
+│       │   └── user.js
+│       ├── db
+│       │   ├── db.js
+│       ├── Dockerfile
+│       ├── middlewares
+│       │   └── errorHandling.js
+│       ├── package.json
+│       ├── pnpm-lock.yaml
+│       ├── routes
+│       │   ├── fileStorage.js
+│       │   ├── roomRouter.js
+│       │   └── userRouter.js
+│       ├── server.js
+│       └── utils
+│           ├── ApiError.js
+│           ├── ApiResponse.js
+│           ├── asyncHandler.js
+│           ├── cleanUp.js
+│           ├── dBCommonFunctions.js
+│           └── helperFunctions.js
+└── TODOS.md
+
 ```
 
 ## Getting Started
