@@ -1,14 +1,16 @@
 # Use an official Node.js base image
 FROM node:24
 
+RUN npm install -g pnpm
+
 # Set working directory
 WORKDIR /app
 
 # Copy dependency files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN pnpm install --prod
 
 # Copy the rest of the app
 COPY . .
@@ -17,4 +19,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the app
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]
