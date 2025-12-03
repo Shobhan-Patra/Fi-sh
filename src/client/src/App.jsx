@@ -127,6 +127,7 @@ function App() {
         user={user}
         onLeaveRoom={handleLeaveRoomClick}
         isLoading={isLoading}
+        hasError={error}
       />
       <main className="flex-1">
         <Routes>

@@ -21,6 +21,7 @@ const ActionButtons = ({
   isLoading,
   onLeaveRoom,
   handleGoToRoomClick,
+  hasError,
   isGoToRoomLoading,
   containerClassName = '',
   buttonClassName = '',
@@ -55,20 +56,22 @@ const ActionButtons = ({
               )}
             </button>
           ) : (
-            <button
-              onClick={handleGoToRoomClick}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl border border-indigo-400 text-indigo-400 font-medium hover:bg-gray-700 transition ${buttonClassName}`}
-              disabled={isGoToRoomLoading}
-            >
-              {isGoToRoomLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <CircleArrowOutUpRight size={18} />
-                  <span>Go to Room</span>
-                </>
-              )}
-            </button>
+            !hasError && ( // Only show this button if there is no error
+              <button
+                onClick={handleGoToRoomClick}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-xl border border-indigo-400 text-indigo-400 font-medium hover:bg-gray-700 transition ${buttonClassName}`}
+                disabled={isGoToRoomLoading}
+              >
+                {isGoToRoomLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <CircleArrowOutUpRight size={18} />
+                    <span>Go to Room</span>
+                  </>
+                )}
+              </button>
+            )
           )}
           <div className={buttonClassName}>
             <UserNavbar user={user} />
@@ -93,7 +96,7 @@ const ActionButtons = ({
   );
 };
 
-export default function Navbar({ user, onLeaveRoom, isLoading }) {
+export default function Navbar({ user, onLeaveRoom, isLoading, hasError }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isGoToRoomLoading, setIsGoToRoomLoading] = useState(false);
   const location = useLocation();
