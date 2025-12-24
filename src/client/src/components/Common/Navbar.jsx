@@ -144,9 +144,9 @@ export default function Navbar({ user, onLeaveRoom, isLoading, hasError }) {
           <Link to="/how-it-works" className="hover:text-indigo-400 transition">
             How it Works
           </Link>
-          <Link to="/contact" className="hover:text-indigo-400 transition">
-            Contact
-          </Link>
+          {/*<Link to="/contact" className="hover:text-indigo-400 transition">*/}
+          {/*  Contact*/}
+          {/*</Link>*/}
         </nav>
 
         {/* Desktop Buttons */}
@@ -157,6 +157,7 @@ export default function Navbar({ user, onLeaveRoom, isLoading, hasError }) {
           onLeaveRoom={onLeaveRoom}
           handleGoToRoomClick={handleGoToRoomClick}
           isGoToRoomLoading={isGoToRoomLoading}
+          hasError={hasError}
         />
 
         {/* Hamburger Menu Button */}

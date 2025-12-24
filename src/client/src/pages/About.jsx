@@ -16,35 +16,32 @@ export default function About() {
 
         {/* Core Principles Section */}
         <div className="grid md:grid-cols-2 gap-8 text-center">
-          {/* Our Goal */}
+          {/* My Goal */}
           <div className="bg-gray-800 p-8 rounded-2xl shadow-lg">
             <Rabbit className="mx-auto text-indigo-400 mb-4" size={40} />
-            <h3 className="text-2xl font-bold text-white">Our Goal</h3>
+            <h3 className="text-2xl font-bold text-white">My Goal</h3>
             <p className="mt-2 text-gray-400">
-              To create the easiest way to share files, period. No sign-ups, no
-              ads, no nonsense. Just a simple tool that works when you need it.
+              No sign-ups, no ads, no nonsense. Just a simple tool that simplifies sharing files when you need it.
             </p>
           </div>
 
-          {/* Our Approach */}
+          {/* <My> Approach */}
           <div className="bg-gray-800 p-8 rounded-2xl shadow-lg">
             <ShieldCheck className="mx-auto text-indigo-400 mb-4" size={40} />
-            <h3 className="text-2xl font-bold text-white">Our Approach</h3>
+            <h3 className="text-2xl font-bold text-white">My Approach</h3>
             <p className="mt-2 text-gray-400">
               I believe in privacy. Your files live in a temporary room for 24
-              hours and are then permanently deleted. It's a digital "catch and
-              release."
+              hours and are then permanently deleted.
             </p>
           </div>
         </div>
 
-        {/* The "Why" Section */}
         <div className="mt-16 max-w-3xl mx-auto text-center">
           <h3 className="text-2xl font-bold text-white">
             Why did I build this?
           </h3>
           <p className="mt-4 text-lg text-gray-400">
-            Honestly? I was just tired of our files getting compressed by
+            I was just tired of our files getting compressed by
             messenger apps or having to log into clunky cloud storage. I wanted
             a space to just drop a file, grab a link, and get on with my day.
             So, I built SnipShare.

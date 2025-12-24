@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 export default function JoinRoom({ onJoinRoom }) {
   const location = useLocation();
@@ -15,6 +16,12 @@ export default function JoinRoom({ onJoinRoom }) {
     setIsLoading(true);
     setError('');
     try {
+      const roomExists = await axios.get(`/api/room/check/${roomId}`, {})
+      console.log(roomExists);
+      if (roomExists.data.status === 404) {
+        setError('Room not found');
+        return;
+      }
       await onJoinRoom(roomId);
     } catch (error) {
       setError('Failed to join room. Please check the ID.');
