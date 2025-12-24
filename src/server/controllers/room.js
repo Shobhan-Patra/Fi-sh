@@ -41,6 +41,34 @@ const createRoom = asyncHandler(async (req, res) => {
   }
 });
 
+const checkRoomExistence = asyncHandler(async (req, res) => {
+  const roomId = req.params.roomId;
+
+  try {
+    const room = await db.execute({
+      sql: "SELECT id FROM rooms WHERE id = ?",
+      args: [roomId],
+    });
+
+    if (room.rows.length === 0) {
+      throw new ApiError(404, `Room with id ${roomId} not found`);
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          {},
+          'Room exists'
+        )
+      );
+  } catch (error) {
+    console.log('Room not found with id ', roomId, '-', error);
+    throw new ApiError(404, 'Room not found with id ' + roomId);
+  }
+})
+
 const joinRoom = asyncHandler(async (req, res) => {
   const roomId = req.params.roomId;
   const { userId } = req.body;
@@ -48,6 +76,15 @@ const joinRoom = asyncHandler(async (req, res) => {
   console.log(roomId, '-', userId);
 
   try {
+    const room = await db.execute({
+      sql: "SELECT id FROM rooms WHERE id = ?",
+      args: [roomId],
+    });
+
+    if (room.rows.length === 0) {
+      throw new ApiError(404, `Room with id ${roomId} not found`);
+    }
+
     const user = await db.execute({
       sql: 'UPDATE users SET room_id = ? WHERE id = ? RETURNING *',
       args: [roomId, userId],
@@ -72,7 +109,7 @@ const joinRoom = asyncHandler(async (req, res) => {
       );
   } catch (error) {
     console.log('Error joining room: ', error);
-    throw new ApiError(400, 'User DB error');
+    throw new ApiError(400, 'Error joining room');
   }
 });
 
@@ -109,4 +146,4 @@ const leaveRoom = asyncHandler(async (req, res) => {
   }
 });
 
-export { createRoom, joinRoom, leaveRoom };
+export { createRoom, joinRoom, leaveRoom, checkRoomExistence };
