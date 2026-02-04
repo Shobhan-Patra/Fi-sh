@@ -32,7 +32,7 @@ const getUploadUrl = asyncHandler(async (req, res) => {
   }
 
   const command = new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
+    Bucket: 'fi-sh-bucket-r2',
     Key: key,
     ContentType: contentType,
   });
@@ -54,7 +54,7 @@ const getDownloadUrl = asyncHandler(async (req, res) => {
   const { key, filename } = req.query;
 
   const command = new GetObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME,
+    Bucket: 'fi-sh-bucket-r2',
     Key: key,
     ResponseContentDisposition: `attachment; filename="${filename}"`,
   });
