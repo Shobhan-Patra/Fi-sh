@@ -16,7 +16,7 @@ const logStream = fs.createWriteStream(path.join(process.cwd(), 'access.log'), {
 
 app.set('trust proxy', 1);
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://snipshare.pages.dev/';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://snipshare.pages.dev';
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   max: 200,
@@ -51,7 +51,7 @@ app.post(`/api/cleanup/${process.env.CRON_SECRET}`, async (req, res) => {
   res.status(200).json({ message: 'Finished Cleaning Up' });
 });
 
-console.log('CORS Middleware configured for origin:', process.env.FRONTEND_URL);
+console.log('CORS Middleware configured for origin:', FRONTEND_URL);
 
 app.use(ErrorHandler);
 export { app };
